@@ -629,8 +629,9 @@ public:
 		m_LightBiasMVPID = glGetUniformLocation(shader.Program(), "lightBiasMVP");
 	}
 
-	void LoadLightBiasMVP(ShadowCamera const& camera, GraphicalObject const& object) const
+	void LoadLightBiasMVP(Shader const& shader, ShadowCamera const& camera, GraphicalObject const& object) const
 	{
+		shader.UseProgram();
 		glm::mat4 mvp, model;
 		object.GetModelMatrix(model);
 		camera.GetMVP(mvp, model);
@@ -643,6 +644,7 @@ public:
 		//glm::mat4 lightBiasMVP = glm::translate( 0.5f * mvp, glm::vec3(0.5f, 0.5f, 0.5f));
 		glm::mat4 lightBiasMVP =  biasMatrix * mvp;
 		glUniformMatrix4fv(m_LightBiasMVPID, 1, GL_FALSE, &lightBiasMVP[0][0]);
+		glUseProgram(0);
 
 	}
 

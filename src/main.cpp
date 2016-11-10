@@ -17,6 +17,14 @@ Vertex const planeVertices[] =
 				{glm::vec3(10.0f, -0.5f, -10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1,1}}
 		};
 
+Vertex const planeVertices2[] =
+		{
+				{glm::vec3(10.0f, -10.0f, 10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0,0}},
+				{glm::vec3(-10.0f, -10.0f, 10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0,1}},
+				{glm::vec3(-10.0f, 10.0f, -10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1,0}},
+				{glm::vec3(10.0f, 10.0f, -10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1,1}}
+		};
+
 GLuint const planeIndices[] =
 		{
 				0, 3, 2,
@@ -143,10 +151,12 @@ int main(int argc, char* argv[])
 
 
 	GraphicalObject cube3(cube_vertices2, sizeof(cube_vertices2)/sizeof(cube_vertices[2]),
-						  cube_indices, sizeof(cube_indices)/sizeof(cube_indices[0]), glm::vec3(1.0f, 1.0f, -4.0f));
+						  cube_indices, sizeof(cube_indices)/sizeof(cube_indices[0]), glm::vec3(1.0f, 1.0f, -5.0f));
 
 
 	GraphicalObject plane(planeVertices, 4, planeIndices, 6, {0.0f, 0.0f, 0.0f});
+	GraphicalObject plane2(planeVertices2, 4, planeIndices, 6, {0.0f, 0.0f, -5.0f});
+
 
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 
@@ -165,6 +175,7 @@ int main(int argc, char* argv[])
 	skybox.LoadShader(skyboxShader);
 
 	plane.LoadShader(shadowShader);
+	plane2.LoadShader(shadowShader);
 
 	cube3.LoadShader(shadowShader);
 
@@ -193,20 +204,28 @@ int main(int argc, char* argv[])
 		cube.Draw(shadowCamera);
 		cube2.LoadShader(shadowGenShader);
 		cube2.Draw(shadowCamera);
+		cube3.LoadShader(shadowGenShader);
+		cube3.Draw(shadowCamera);
 
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0); //changing buffer
 		//Render pass
 		shadowMapTechnique.ReadShadowTexture(GL_TEXTURE0);
-		shadowShader.UseProgram();
-		shadowMapTechnique.LoadLightBiasMVP(shadowCamera, plane); // loads to shadow shader uniform light bias mvp
+		shadowMapTechnique.LoadLightBiasMVP(shadowShader, shadowCamera, plane);// loads to shadow shader uniform light bias mvp
+		plane.DrawIlluminated(camera, glm::vec4(lightPosition,1.0f));
 
 
 		cube.LoadShader(blinnShader);
 		cube.DrawIlluminated(camera, glm::vec4(lightPosition, 1.0f));
-		cube3.DrawIlluminated(camera, glm::vec4(lightPosition,1.0f));
 
-		plane.DrawIlluminated(camera, glm::vec4(lightPosition,1.0f));
+		shadowMapTechnique.LoadLightBiasMVP(shadowShader,shadowCamera, cube3);
+		cube3.LoadShader(shadowShader);
+		cube3.DrawIlluminated(camera, glm::vec4(lightPosition,1.0f));
+		//shadowShader.UseProgram();
+		//shadowMapTechnique.LoadLightBiasMVP(shadowCamera, plane2);// loads to shadow shader uniform light bias mvp
+		//plane2.DrawIlluminated(camera, glm::vec4(lightPosition,1.0f));
+
+
 		skybox.Draw(camera);
 
 		cube2.LoadShader(cubemapReflectionShader);
