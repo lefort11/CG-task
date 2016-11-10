@@ -52,6 +52,7 @@ IF(GLEW_LIBRARY)
     message("*** Glew lib is found!")
 ENDIF(GLEW_LIBRARY)
 
+
 #########################################################
 # find glfw
 #########################################################
@@ -64,8 +65,18 @@ include_directories(${GLFW_INCLUDE_DIRS})
 FIND_PATH(FREEIMAGE_INCLUDE_DIRS freeimage.h /usr/local/include)
 FIND_LIBRARY(FREEIMAGE_LIBRARY  freeimage.3.17.0 /usr/local/lib)
 
+IF(FREEIMAGE_INCLUDE_DIRS)
+    message("*** FreeImage inlclude is found!")
+ENDIF(FREEIMAGE_INCLUDE_DIRS)
+
+IF(FREEIMAGE_LIBRARY)
+    message("*** FreeImage lib is found!")
+ENDIF(FREEIMAGE_LIBRARY)
+
 include_directories(${FREEIMAGE_INCLUDE_DIRS})
 #link_directories("/usr/local/lib")
+
+
 
 
 
@@ -75,9 +86,10 @@ set(SOURCE_FILES src/main.cpp src/Window.h src/Engine.h src/Camera.h src/Shader.
 add_executable(mashgraph ${SOURCE_FILES})
 FIND_LIBRARY(COCOA_LIBRARY Cocoa)
 
+
 target_link_libraries(mashgraph ${FREEIMAGE_LIBRARY})
 target_link_libraries(mashgraph ${GLFW_LIBRARIES})
-#target_link_libraries(mashgraph ${Freeglut_LIBRARY})
+target_link_libraries(mashgraph ${Freeglut_LIBRARY})
 target_link_libraries(mashgraph ${GLEW_LIBRARY}  ${OPENGL_LIBRARIES} ${COCOA_LIBRARY} "-framework Cocoa -framework IOKit -framework CoreVideo")
 set_target_properties(mashgraph PROPERTIES LINK_FLAGS "-Wl,-F/Library/Frameworks")
 
