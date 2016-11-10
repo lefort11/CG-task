@@ -10,7 +10,8 @@ uniform vec4 lightPosition;
 uniform mat4 mvp;
 uniform mat4 model;
 uniform mat3 normalMat;
-uniform mat4 view;
+
+//uniform mat4 lightViewMat;
 
 out vec3 modelPosition3;
 out vec3 lightDirection;
@@ -20,6 +21,7 @@ out vec4 fragmentColor;
 
 void main()
 {
+   //vec4 vertexPosition_worldSpace = lightViewMat * model * vec4(vertexPosition_modelspace, 1);
    vec4 vertexPosition_worldSpace = model * vec4(vertexPosition_modelspace, 1);
    modelPosition3 = vertexPosition_worldSpace.xyz / vertexPosition_worldSpace.w;
 

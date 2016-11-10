@@ -308,6 +308,8 @@ class GraphicalObject
 	GLint lightPositionID;
 
 
+//	GLint lightViewID;
+
 
 public:
 	GraphicalObject(Vertex const* vertices, unsigned const verticesNumber, GLuint const* indices,
@@ -330,6 +332,8 @@ public:
 		viewID = glGetUniformLocation(shader.Program(), "view");
 
 		lightPositionID = glGetUniformLocation(shader.Program(), "lightPosition");
+
+//		lightViewID = glGetUniformLocation(shader.Program(), "lightViewMat");
 
 		m_pShader = &shader;
 	}
@@ -372,6 +376,10 @@ public:
 		glm::mat4 view;
 		camera.GetView(view);
 
+//		glm::mat4 lightViewMat = glm::lookAt(glm::vec3(lightPosition), {}, {0.0f, 1.0f, 0.0f});
+
+//		glm::mat3 normalMat = glm::transpose(glm::inverse(glm::mat3x3(lightViewMat * model)));
+
 		glm::mat3 normalMat = glm::transpose(glm::inverse(glm::mat3x3(model)));
 
 		glUniformMatrix4fv(mvpID, 1, GL_FALSE, &mvp[0][0]);
@@ -381,6 +389,9 @@ public:
 		glUniformMatrix4fv(viewID, 1, GL_FALSE, &view[0][0]);
 
 		glUniform4fv(lightPositionID, 1, &lightPosition[0]);
+
+
+//		glUniformMatrix4fv(lightViewID, 1, GL_FALSE, &lightViewMat[0][0]);
 
 		m_Mesh.Draw();
 
