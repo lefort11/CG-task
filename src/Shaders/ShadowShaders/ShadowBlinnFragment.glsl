@@ -71,6 +71,13 @@ vec4 GetBlinnReflection(vec4 ambientSurfaceColor,
     return diffuse + specular + ambient;
 }
 
+float random(vec3 seed, int i)
+{
+	vec4 seed4 = vec4(seed,i);
+	float dot_product = dot(seed4, vec4(12.9898,78.233,45.164,94.673));
+	return fract(sin(dot_product) * 43758.5453);
+}
+
 
 in vec4 fragmentColor;
 
@@ -89,7 +96,24 @@ void main()
     vec3 viewerDirection = normalize(-modelPosition3);
     vec3 halfAngle = normalize(normalize(viewerDirection) + normalizedLightDirection);
 
-    float visibility = texture(gShadowMap, vec3(ShadowCoord.xy, (ShadowCoord.z)/ShadowCoord.w) );
+
+    vec2 poissonDisk[4] = vec2[](
+      vec2( -0.94201624, -0.39906216 ),
+      vec2( 0.94558609, -0.76890725 ),
+      vec2( -0.094184101, -0.92938870 ),
+      vec2( 0.34495938, 0.29387760 )
+    );
+
+    float bias = 0.005;
+
+    float visibility = 1.0;
+    for(int i = 0; i < 4; ++i)
+    {
+       // int index = int(16.0*random(floor(modelPosition3.xyz*10000.0), i))%16;
+
+        visibility -= 0.2*
+        (1.0 - texture(gShadowMap, vec3(ShadowCoord.xy + poissonDisk[i] / 650.0, (ShadowCoord.z - bias)/ShadowCoord.w)));
+    }
 
     color = visibility * GetBlinnReflection(
     		materialDiffuse,

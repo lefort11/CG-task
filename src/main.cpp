@@ -76,6 +76,18 @@ Vertex cube_vertices[] =
 				{glm::vec3(0.5f, -0.5f, 0.5f), {1.0f, -1.0f, 1.0f}, {1.0f,0.0f,0.0f},{}}
 		};
 
+Vertex cube_vertices2[] =
+		{
+				{3.0f * glm::vec3(-0.5f, -0.5f, -0.5f), {-1.0f, -1.0f, -1.0f}, {1.0f,0.0f,0.0f},{}},
+				{3.0f * glm::vec3(-0.5f, 0.5f, -0.5f), {-1.0f, 1.0f, -1.0f}, {1.0f,0.0f,0.0f},{}},
+				{3.0f * glm::vec3(0.5f, 0.5f, -0.5f), {1.0f, 1.0f, -1.0f}, {1.0f,0.0f,0.0f},{}},
+				{3.0f * glm::vec3(0.5f, -0.5f, -0.5f), {1.0f, -1.0f, -1.0f}, {1.0f,0.0f,0.0f},{}},
+				{3.0f * glm::vec3(-0.5f, -0.5f, 0.5f), {-1.0f, -1.0f, 1.0f}, {1.0f,0.0f,0.0f},{}},
+				{3.0f * glm::vec3(-0.5f, 0.5f, 0.5f), {-1.0f, 1.0f, 1.0f}, {1.0f,0.0f,0.0f},{}},
+				{3.0f * glm::vec3(0.5f, 0.5f, 0.5f), {1.0f, 1.0f, 1.0f}, {1.0f,0.0,0.0f},{}},
+				{3.0f * glm::vec3(0.5f, -0.5f, 0.5f), {1.0f, -1.0f, 1.0f}, {1.0f,0.0f,0.0f},{}}
+		};
+
 GLuint cube_indices[] =
 		{
 				// front
@@ -100,7 +112,7 @@ GLuint cube_indices[] =
 		};
 
 
-glm::vec3 lightPosition = {-1.0f, 3.0f, 2.0f};
+glm::vec3 lightPosition = {-1.0f, 1.0f, 2.0f};
 
 
 
@@ -130,6 +142,10 @@ int main(int argc, char* argv[])
 						 cube_indices, sizeof(cube_indices)/sizeof(cube_indices[0]), glm::vec3(1.0f, 1.0f, 0.0f));
 
 
+	GraphicalObject cube3(cube_vertices2, sizeof(cube_vertices2)/sizeof(cube_vertices[2]),
+						  cube_indices, sizeof(cube_indices)/sizeof(cube_indices[0]), glm::vec3(1.0f, 1.0f, -4.0f));
+
+
 	GraphicalObject plane(planeVertices, 4, planeIndices, 6, {0.0f, 0.0f, 0.0f});
 
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
@@ -147,20 +163,18 @@ int main(int argc, char* argv[])
 	cube.LoadShader(blinnShader);
 	cube2.LoadShader(cubemapReflectionShader);
 	skybox.LoadShader(skyboxShader);
+
 	plane.LoadShader(shadowShader);
 
-	ShadowCamera shadowCamera(500, 500, lightPosition, {0.0f,0.0f,0.0f});
+	cube3.LoadShader(shadowShader);
 
-//	GLint blinnLightPositionID = glGetUniformLocation(blinnShader.Program(), "lightPosition");
-//	GLint shadowLightPositionID = glGetUniformLocation(shadowShader.Program(), "lightPosition");
+	ShadowCamera shadowCamera(500, 500, lightPosition, {0.0f,0.0f,0.0f});
 
 	//initializing shadowMap framebuffer object
 	ShadowMapFBO shadowMapFBO;
 	int width, height;
 	glfwGetFramebufferSize(window.GetGLFWPtr(), &width, &height);
 	shadowMapFBO.Init(width, height);
-
-	GLuint textureLocation;
 
 	Shader shadowGenShader;
 	shadowGenShader.Load("./src/Shaders/ShadowShaders/ShadowGenVertex.glsl",
@@ -190,6 +204,7 @@ int main(int argc, char* argv[])
 
 		cube.LoadShader(blinnShader);
 		cube.DrawIlluminated(camera, glm::vec4(lightPosition, 1.0f));
+		cube3.DrawIlluminated(camera, glm::vec4(lightPosition,1.0f));
 
 		plane.DrawIlluminated(camera, glm::vec4(lightPosition,1.0f));
 		skybox.Draw(camera);
