@@ -104,7 +104,7 @@ void main()
       vec2( 0.34495938, 0.29387760 )
     );
 
-    float bias = 0.005;
+    float bias = 0.000;
 
     float visibility = 1.0;
     for(int i = 0; i < 4; ++i)

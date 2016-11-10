@@ -9,6 +9,9 @@
 #include "Window.h"
 #include "Engine.h"
 
+#define WIDTH 800
+#define  HEIGHT 800
+
 Vertex const planeVertices[] =
 		{
 				{glm::vec3(10.0f, -0.5f, 10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0,0}},
@@ -127,16 +130,17 @@ glm::vec3 lightPosition = {-1.0f, 1.0f, 2.0f};
 int main(int argc, char* argv[])
 {
 
-	Window window(500, 500, "Scene");
+	Window window(WIDTH, HEIGHT, "Scene");
 	window.Initialize();
 
-	OrbitalCamera camera(500, 500);
+	OrbitalCamera camera(WIDTH, HEIGHT);
 
 
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 
 	Skybox skybox("./Yokohama2/posx.jpg", "./Yokohama2/negx.jpg", "./Yokohama2/posy.jpg", "./Yokohama2/negy.jpg",
 				  "./Yokohama2/posz.jpg",
@@ -179,7 +183,7 @@ int main(int argc, char* argv[])
 
 	cube3.LoadShader(shadowShader);
 
-	ShadowCamera shadowCamera(500, 500, lightPosition, {0.0f,0.0f,0.0f});
+	ShadowCamera shadowCamera(WIDTH, HEIGHT, lightPosition, {0.0f,0.0f,0.0f});
 
 	//initializing shadowMap framebuffer object
 	ShadowMapFBO shadowMapFBO;
@@ -198,7 +202,11 @@ int main(int argc, char* argv[])
 
 	do
 	{
+
+
 		//ShadowMap pass
+		glCullFace(GL_FRONT);
+
 		shadowMapTechnique.WriteShadowTexture();
 		cube.LoadShader(shadowGenShader);
 		cube.Draw(shadowCamera);
@@ -207,6 +215,8 @@ int main(int argc, char* argv[])
 		cube3.LoadShader(shadowGenShader);
 		cube3.Draw(shadowCamera);
 
+
+		glCullFace(GL_BACK);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0); //changing buffer
 		//Render pass
