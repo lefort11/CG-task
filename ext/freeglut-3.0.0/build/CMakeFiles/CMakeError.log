@@ -1,0 +1,62 @@
+Determining if files /usr/X11R6/include/X11/extensions/XInput2.h exist failed with the following output:
+Change Dir: /Users/Gleb/Desktop/mashgraph/ext/freeglut-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_10f96/fast"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make -f CMakeFiles/cmTC_10f96.dir/build.make CMakeFiles/cmTC_10f96.dir/build
+Building C object CMakeFiles/cmTC_10f96.dir/CheckIncludeFiles.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc    -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk   -o CMakeFiles/cmTC_10f96.dir/CheckIncludeFiles.c.o   -c /Users/Gleb/Desktop/mashgraph/ext/freeglut-3.0.0/build/CMakeFiles/CMakeTmp/CheckIncludeFiles.c
+In file included from /Users/Gleb/Desktop/mashgraph/ext/freeglut-3.0.0/build/CMakeFiles/CMakeTmp/CheckIncludeFiles.c:2:
+/usr/X11R6/include/X11/extensions/XInput2.h:30:10: fatal error: 'X11/Xlib.h' file not found
+#include <X11/Xlib.h>
+         ^
+1 error generated.
+make[1]: *** [CMakeFiles/cmTC_10f96.dir/CheckIncludeFiles.c.o] Error 1
+make: *** [cmTC_10f96/fast] Error 2
+
+Source:
+/* */
+#include </usr/X11R6/include/X11/extensions/XInput2.h>
+
+
+int main(void){return 0;}
+
+Determining if files usbhid.h exist failed with the following output:
+Change Dir: /Users/Gleb/Desktop/mashgraph/ext/freeglut-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_84d34/fast"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make -f CMakeFiles/cmTC_84d34.dir/build.make CMakeFiles/cmTC_84d34.dir/build
+Building C object CMakeFiles/cmTC_84d34.dir/CheckIncludeFiles.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc    -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk   -o CMakeFiles/cmTC_84d34.dir/CheckIncludeFiles.c.o   -c /Users/Gleb/Desktop/mashgraph/ext/freeglut-3.0.0/build/CMakeFiles/CMakeTmp/CheckIncludeFiles.c
+/Users/Gleb/Desktop/mashgraph/ext/freeglut-3.0.0/build/CMakeFiles/CMakeTmp/CheckIncludeFiles.c:2:10: fatal error: 'usbhid.h' file not found
+#include <usbhid.h>
+         ^
+1 error generated.
+make[1]: *** [CMakeFiles/cmTC_84d34.dir/CheckIncludeFiles.c.o] Error 1
+make: *** [cmTC_84d34/fast] Error 2
+
+Source:
+/* */
+#include <usbhid.h>
+
+
+int main(void){return 0;}
+
+Determining if the function XParseGeometry exists failed with the following output:
+Change Dir: /Users/Gleb/Desktop/mashgraph/ext/freeglut-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_c8cec/fast"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make -f CMakeFiles/cmTC_c8cec.dir/build.make CMakeFiles/cmTC_c8cec.dir/build
+Building C object CMakeFiles/cmTC_c8cec.dir/CheckFunctionExists.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc    -DCHECK_FUNCTION_EXISTS=XParseGeometry -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk   -o CMakeFiles/cmTC_c8cec.dir/CheckFunctionExists.c.o   -c /usr/local/Cellar/cmake/3.6.2/share/cmake/Modules/CheckFunctionExists.c
+Linking C executable cmTC_c8cec
+/usr/local/Cellar/cmake/3.6.2/bin/cmake -E cmake_link_script CMakeFiles/cmTC_c8cec.dir/link.txt --verbose=1
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=XParseGeometry -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names   CMakeFiles/cmTC_c8cec.dir/CheckFunctionExists.c.o  -o cmTC_c8cec  -lm 
+Undefined symbols for architecture x86_64:
+  "_XParseGeometry", referenced from:
+      _main in CheckFunctionExists.c.o
+ld: symbol(s) not found for architecture x86_64
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+make[1]: *** [cmTC_c8cec] Error 1
+make: *** [cmTC_c8cec/fast] Error 2
+
+
