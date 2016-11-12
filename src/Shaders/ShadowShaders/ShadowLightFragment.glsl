@@ -4,10 +4,10 @@
 
 uniform sampler2DShadow gShadowMap;
 
-uniform vec4 MaterialSpecular = vec4(0.9,0.9,0.9,1.0);
-uniform vec4 MaterialAmbient = vec4(0.2,0.2,0.2,1.0);
-uniform vec4 MaterialDiffuse = vec4(0.7,0.7,0.7,1.0);
-uniform float Shininess = 0.0;
+uniform vec4 MaterialSpecular;
+uniform vec4 MaterialAmbient;
+uniform vec4 MaterialDiffuse;
+uniform float Shininess;
 
 uniform vec4 LightDiffuse = vec4(1.0,1.0,1.0,1.0);
 uniform vec4 LightAmbient = vec4(0.2,0.2,0.2,1.0);
@@ -132,13 +132,13 @@ void main()
 
     vec3 halfAngle = normalize(l + v);
 
-    vec3 E = normalize(eyeDirection_worldSpace);
+ /*   vec3 E = normalize(eyeDirection_worldSpace);
 
    	vec3 R = reflect(-l,n);
 
     float cosTheta = clamp( dot( n,l ), 0,1 );
 
-    float cosAlpha = clamp( dot( E,R ), 0,1 );
+    float cosAlpha = clamp( dot( E,R ), 0,1 ); */
 
     float bias = 0;
 
@@ -158,7 +158,7 @@ void main()
                         n,
                         halfAngle,
                         l,
-                        LightDiffuse);
+                        LightDiffuse) * fragmentColor;
 
 
 }
