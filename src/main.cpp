@@ -75,6 +75,7 @@ GLuint const Skybox::skyboxIndices[] =
 glm::vec3 const Skybox::offset = glm::vec3(0.0f, 0.0f, 0.0f);
 
 
+
 Vertex cube_vertices[] =
 		{
 				{glm::vec3(-0.5f, -0.5f, -0.5f), {-1.0f, -1.0f, -1.0f}, {1.0f,0.0f,0.0f},{}},
@@ -101,7 +102,7 @@ Vertex cube_vertices2[] =
 
 GLuint cube_indices[] =
 		{
-				// front
+				// back
 				0, 1, 2,
 				2, 3, 0,
 				// right
@@ -123,7 +124,9 @@ GLuint cube_indices[] =
 		};
 
 
-glm::vec3 lightPosition = {-1.0f, 1.0f, 2.0f};
+//glm::vec3 lightPosition = {-1.0f, 1.0f, 2.0f};
+
+glm::vec3 lightInvDirection = glm::vec3(0.5f, -0.5f, -1.0f);
 
 
 
@@ -167,14 +170,14 @@ int main(int argc, char* argv[])
 
 	Shader blinnShader, skyboxShader, shadowShader, cubemapReflectionShader;
 	//shader compilation
-	blinnShader.Load("./src/Shaders/BlinnShaders/BlinnVertex.glsl", "./src/Shaders/BlinnShaders/BlinnFragment.glsl");
+//	blinnShader.Load("./src/Shaders/BlinnShaders/BlinnVertex.glsl", "./src/Shaders/BlinnShaders/BlinnFragment.glsl");
 	skyboxShader.Load("./src/Shaders/SkyboxShaders/SkyboxVertex.glsl", "./src/Shaders/SkyboxShaders/SkyboxFragment.glsl");
 	cubemapReflectionShader.Load("./src/Shaders/SkyboxShaders/CubemapReflectionVertex.glsl",
 								 "./src/Shaders/SkyboxShaders/CubemapReflectionFragment.glsl");
-	shadowShader.Load("./src/Shaders/ShadowShaders/ShadowBlinnVertex.glsl",
-					  "./src/Shaders/ShadowShaders/ShadowBlinnFragment.glsl");
+	shadowShader.Load("./src/Shaders/ShadowShaders/ShadowLightVertex.glsl",
+					  "./src/Shaders/ShadowShaders/ShadowLightFragment.glsl");
 
-	cube.LoadShader(blinnShader);
+	cube.LoadShader(shadowShader);
 	cube2.LoadShader(cubemapReflectionShader);
 	skybox.LoadShader(skyboxShader);
 
@@ -183,7 +186,7 @@ int main(int argc, char* argv[])
 
 	cube3.LoadShader(shadowShader);
 
-	ShadowCamera shadowCamera(WIDTH, HEIGHT, lightPosition, {0.0f,0.0f,0.0f});
+	ShadowCamera shadowCamera(WIDTH, HEIGHT, glm::vec3(0.0f, 0.0f, 0.0f) - lightInvDirection, {0.0f,0.0f,0.0f});
 
 	//initializing shadowMap framebuffer object
 	ShadowMapFBO shadowMapFBO;
@@ -218,19 +221,18 @@ int main(int argc, char* argv[])
 
 		glCullFace(GL_BACK);
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0); //changing buffer
 		//Render pass
 		shadowMapTechnique.ReadShadowTexture(GL_TEXTURE0);
 		shadowMapTechnique.LoadLightBiasMVP(shadowShader, shadowCamera, plane);// loads to shadow shader uniform light bias mvp
-		plane.DrawIlluminated(camera, glm::vec4(lightPosition,1.0f));
+		plane.DrawIlluminated(camera, glm::vec4(lightInvDirection,1.0f));
 
 
-		cube.LoadShader(blinnShader);
-		cube.DrawIlluminated(camera, glm::vec4(lightPosition, 1.0f));
+		cube.LoadShader(shadowShader);
+		cube.DrawIlluminated(camera, glm::vec4(lightInvDirection, 1.0f));
 
 		shadowMapTechnique.LoadLightBiasMVP(shadowShader,shadowCamera, cube3);
 		cube3.LoadShader(shadowShader);
-		cube3.DrawIlluminated(camera, glm::vec4(lightPosition,1.0f));
+		cube3.DrawIlluminated(camera, glm::vec4(lightInvDirection,1.0f));
 		//shadowShader.UseProgram();
 		//shadowMapTechnique.LoadLightBiasMVP(shadowCamera, plane2);// loads to shadow shader uniform light bias mvp
 		//plane2.DrawIlluminated(camera, glm::vec4(lightPosition,1.0f));

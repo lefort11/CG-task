@@ -305,10 +305,10 @@ class GraphicalObject
 
 	GLint viewID;
 
-	GLint lightPositionID;
+	GLint lightDirectionID;
 
 
-//	GLint lightViewID;
+	GLint lightViewID;
 
 
 public:
@@ -331,9 +331,9 @@ public:
 
 		viewID = glGetUniformLocation(shader.Program(), "view");
 
-		lightPositionID = glGetUniformLocation(shader.Program(), "lightPosition");
+		lightDirectionID = glGetUniformLocation(shader.Program(), "lightDirection");
 
-//		lightViewID = glGetUniformLocation(shader.Program(), "lightViewMat");
+		lightViewID = glGetUniformLocation(shader.Program(), "lightViewMat");
 
 		m_pShader = &shader;
 	}
@@ -365,7 +365,7 @@ public:
 
 	}
 
-	void DrawIlluminated(Camera const& camera, glm::vec4 const& lightPosition)
+	void DrawIlluminated(Camera const& camera, glm::vec4 const& lightDirection)
 	{
 		m_pShader->UseProgram();
 
@@ -376,11 +376,12 @@ public:
 		glm::mat4 view;
 		camera.GetView(view);
 
-//		glm::mat4 lightViewMat = glm::lookAt(glm::vec3(lightPosition), {}, {0.0f, 1.0f, 0.0f});
+		glm::mat4 lightViewMat = glm::lookAt(-glm::vec3(lightDirection), glm::vec3(0.0f, 0.0f, 0.0f),
+											 {0.0f, 1.0f, 0.0f});
 
 //		glm::mat3 normalMat = glm::transpose(glm::inverse(glm::mat3x3(lightViewMat * model)));
 
-		glm::mat3 normalMat = glm::transpose(glm::inverse(glm::mat3x3(model)));
+		glm::mat3 normalMat = glm::transpose(glm::inverse(glm::mat3x3(view * model)));
 
 		glUniformMatrix4fv(mvpID, 1, GL_FALSE, &mvp[0][0]);
 		glUniformMatrix4fv(modelID, 1, GL_FALSE, &model[0][0]);
@@ -388,10 +389,10 @@ public:
 
 		glUniformMatrix4fv(viewID, 1, GL_FALSE, &view[0][0]);
 
-		glUniform4fv(lightPositionID, 1, &lightPosition[0]);
+		glUniform4fv(lightDirectionID, 1, &lightDirection[0]);
 
 
-//		glUniformMatrix4fv(lightViewID, 1, GL_FALSE, &lightViewMat[0][0]);
+		glUniformMatrix4fv(lightViewID, 1, GL_FALSE, &lightViewMat[0][0]);
 
 		m_Mesh.Draw();
 
@@ -612,6 +613,7 @@ public:
 
 	void BindForReading(GLenum TextureUnit)
 	{
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glActiveTexture(TextureUnit);
 		glBindTexture(GL_TEXTURE_2D, m_ShadowMap);
 	}

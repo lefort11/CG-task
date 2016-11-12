@@ -26,7 +26,7 @@ out vec4 ShadowCoord;
 
 void main()
 {
-   //vec4 vertexPosition_worldSpace = lightViewMat * model * vec4(vertexPosition_modelspace, 1);
+  // vec4 vertexPosition_worldSpace = lightViewMat * model * vec4(vertexPosition_modelspace, 1);
    vec4 vertexPosition_worldSpace = model * vec4(vertexPosition_modelspace, 1);
    modelPosition3 = vertexPosition_worldSpace.xyz / vertexPosition_worldSpace.w;
 

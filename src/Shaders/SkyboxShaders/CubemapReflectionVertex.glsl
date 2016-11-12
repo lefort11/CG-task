@@ -19,6 +19,6 @@ void main()
     Normal = normalMat * normal;
     Position = vec3(model * vec4(position, 1.0f));
 
-    mat4 view = inverse(view);
-    cameraPos = view[3].xyz/view[3].w; // Might have to divide by w if you can't assume w == 1
+    mat4 viewInv = inverse(view);
+    cameraPos = viewInv[3].xyz/viewInv[3].w; // Might have to divide by w if you can't assume w == 1
 }
