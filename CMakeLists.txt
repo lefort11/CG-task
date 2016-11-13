@@ -19,8 +19,8 @@ if(WIN32)
     #########################################################
     # find glew
     #########################################################
-    FIND_PATH(GlEW_INCLUDE_DIRS GL/glew.h ${CMAKE_SOURCE_DIR}/ext/Bin/glew-2.0.0/include)
-    FIND_LIBRARY(GlEW_LIBRARY glew32 ${CMAKE_SOURCE_DIR}/ext/Bin/glew-2.0.0/lib/Release/Win32)
+    FIND_PATH(GLEW_INCLUDE_DIRS GL/glew.h ${CMAKE_SOURCE_DIR}/ext/Bin/glew-2.0.0/include)
+    FIND_LIBRARY(GLEW_LIBRARY glew32 ${CMAKE_SOURCE_DIR}/ext/Bin/glew-2.0.0/lib/Release/Win32)
 
     include_directories(${GLEW_INCLUDE_DIRS})
     link_directories(${CMAKE_SOURCE_DIR}/ext/Bin/glew-2.0.0/lib/Release/Win32)
@@ -73,8 +73,8 @@ if(APPLE)
     # find glew
     #########################################################
     FIND_PACKAGE(GLEW REQUIRED) #some bug here
-    FIND_PATH(GlEW_INCLUDE_DIRS GL/glew.h /usr/local/include)
-    FIND_LIBRARY(GlEW_LIBRARY GLEW.2.0.0 /usr/local/lib)
+    FIND_PATH(GLEW_INCLUDE_DIRS GL/glew.h /usr/local/include)
+    FIND_LIBRARY(GLEW_LIBRARY GLEW.2.0.0 /usr/local/lib)
 
     include_directories(${GLEW_INCLUDE_DIRS})
     link_directories("/usr/local/lib")
