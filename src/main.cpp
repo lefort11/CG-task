@@ -148,9 +148,9 @@ int main(int argc, char* argv[])
 	glCullFace(GL_BACK);
 //	glEnable(GL_TEXTURE_2D);
 
-	Skybox skybox("./Yokohama2/posx.jpg", "./Yokohama2/negx.jpg", "./Yokohama2/posy.jpg", "./Yokohama2/negy.jpg",
-				  "./Yokohama2/posz.jpg",
-				  "./Yokohama2/negz.jpg");
+	Skybox skybox("../Yokohama2/posx.jpg", "../Yokohama2/negx.jpg", "../Yokohama2/posy.jpg", "../Yokohama2/negy.jpg",
+				  "../Yokohama2/posz.jpg",
+				  "../Yokohama2/negz.jpg");
 
 	GraphicalObject cube(cube_vertices, sizeof(cube_vertices)/sizeof(cube_vertices[0]),
 			  cube_indices, sizeof(cube_indices)/sizeof(cube_indices[0]), glm::vec3(0.0f, 0.0f, 0.0f));
@@ -173,14 +173,14 @@ int main(int argc, char* argv[])
 
 	Shader skyboxShader, shadowShader, cubemapReflectionShader, normalMapShader;
 	//shader compilation
-	skyboxShader.Load("./src/Shaders/SkyboxShaders/SkyboxVertex.glsl", "./src/Shaders/SkyboxShaders/SkyboxFragment.glsl");
-	cubemapReflectionShader.Load("./src/Shaders/SkyboxShaders/CubemapReflectionVertex.glsl",
-								 "./src/Shaders/SkyboxShaders/CubemapReflectionFragment.glsl");
-	shadowShader.Load("./src/Shaders/ShadowShaders/ShadowLightVertex.glsl",
-					  "./src/Shaders/ShadowShaders/ShadowLightFragment.glsl");
+	skyboxShader.Load("../src/Shaders/SkyboxShaders/SkyboxVertex.glsl", "../src/Shaders/SkyboxShaders/SkyboxFragment.glsl");
+	cubemapReflectionShader.Load("../src/Shaders/SkyboxShaders/CubemapReflectionVertex.glsl",
+								 "../src/Shaders/SkyboxShaders/CubemapReflectionFragment.glsl");
+	shadowShader.Load("../src/Shaders/ShadowShaders/ShadowLightVertex.glsl",
+					  "../src/Shaders/ShadowShaders/ShadowLightFragment.glsl");
 
-	normalMapShader.Load("./src/Shaders/NormalMapShaders/NormalVertex.glsl",
-						 "./src/Shaders/NormalMapShaders/NormalFragment.glsl");
+	normalMapShader.Load("../src/Shaders/NormalMapShaders/NormalVertex.glsl",
+						 "../src/Shaders/NormalMapShaders/NormalFragment.glsl");
 
 	Material material;
 	Material material1;
@@ -209,8 +209,8 @@ int main(int argc, char* argv[])
 	shadowMapFBO.Init(width, height);
 
 	Shader shadowGenShader;
-	shadowGenShader.Load("./src/Shaders/ShadowShaders/ShadowGenVertex.glsl",
-						 "./src/Shaders/ShadowShaders/ShadowGenFragment.glsl");
+	shadowGenShader.Load("../src/Shaders/ShadowShaders/ShadowGenVertex.glsl",
+						 "../src/Shaders/ShadowShaders/ShadowGenFragment.glsl");
 
 	//initializing shadowmap technique
 	ShadowMapTechnique shadowMapTechnique(&shadowMapFBO);
@@ -219,9 +219,9 @@ int main(int argc, char* argv[])
 	GLint normalMapID = glGetUniformLocation(normalMapShader.Program(), "normalMap");
 	GLint colorMapID = glGetUniformLocation(normalMapShader.Program(), "colorMap");
 
-	Texture normalTex(GL_TEXTURE_2D, "./normal map/normal_map.jpg");
+	Texture normalTex(GL_TEXTURE_2D, "../normal map/normal_map.jpg");
 
-	Texture colorTex(GL_TEXTURE_2D, "./normal map/bricks.jpg");
+	Texture colorTex(GL_TEXTURE_2D, "../normal map/bricks.jpg");
 
 	colorTex.Load();
 	normalTex.Load();
