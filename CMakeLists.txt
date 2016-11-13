@@ -123,6 +123,9 @@ FIND_LIBRARY(COCOA_LIBRARY Cocoa)
 
 target_link_libraries(mashgraph ${FREEIMAGE_LIBRARY})
 target_link_libraries(mashgraph ${GLFW_LIBRARIES})
-target_link_libraries(mashgraph ${GLEW_LIBRARY}  ${OPENGL_LIBRARIES} ${COCOA_LIBRARY} "-framework Cocoa -framework IOKit -framework CoreVideo")
+if(APPLE)
+    target_link_libraries(mashgraph ${COCOA_LIBRARY} "-framework Cocoa -framework IOKit -framework CoreVideo")
+endif(APPLE)
+target_link_libraries(mashgraph ${GLEW_LIBRARY}  ${OPENGL_LIBRARIES})
 set_target_properties(mashgraph PROPERTIES LINK_FLAGS "-Wl,-F/Library/Frameworks")
 
