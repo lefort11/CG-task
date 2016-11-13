@@ -18,6 +18,7 @@
 #include "Vertex.h"
 #include "Shader.h"
 #include "Camera.h"
+#include "LightningTechnique.h"
 
 class Mesh
 {
@@ -159,6 +160,8 @@ class GraphicalObject
 	GLint MaterialDiffuseID;
 	GLint MaterialShininessID;
 
+	std::vector<LightningTechnique*> m_LightningTechniques;
+
 
 public:
 	GraphicalObject(Vertex const* vertices, unsigned const verticesNumber, GLuint const* indices,
@@ -166,6 +169,26 @@ public:
 			m_Mesh(vertices,  verticesNumber, indices, indicesNumber),
 			m_CenterOffset(offset)
 	{}
+
+	void LoadLightningTechniques(std::vector<LightningTechnique*> lightningTechniques)
+	{
+		m_LightningTechniques = lightningTechniques;
+	}
+
+	void AddLightningTechnique(LightningTechnique& lightningTechnique)
+	{
+		m_LightningTechniques.push_back(lightningTechnique.Clone());
+	}
+
+	void InitLightningTechniques()
+	{
+		for(int i = 0; i < m_LightningTechniques.size(); ++i)
+		{
+			m_LightningTechniques[i]->Init(*m_pShader);
+		}
+	}
+
+
 
 	~GraphicalObject()
 	{
@@ -204,9 +227,12 @@ public:
 	{
 		m_pShader->UseProgram();
 
+
+
 		glm::mat4 mvp;
 		glm::mat4 model = glm::translate(m_CenterOffset);
 		camera.GetMVP(mvp, model);
+
 
 		glm::mat4 view;
 		camera.GetView(view);
@@ -218,6 +244,7 @@ public:
 		glUniformMatrix3fv(normalMatID, 1, GL_FALSE, &normalMat[0][0]);
 
 		glUniformMatrix4fv(viewID, 1, GL_FALSE, &view[0][0]);
+
 
 
 		m_Mesh.Draw();
@@ -260,6 +287,11 @@ public:
 
 
 		glUniformMatrix4fv(lightViewID, 1, GL_FALSE, &lightViewMat[0][0]);
+
+		for(int i = 0; i < m_LightningTechniques.size(); ++i)
+		{
+			m_LightningTechniques[i]->DoStuff(*m_pShader, model);
+		}
 
 		m_Mesh.Draw();
 

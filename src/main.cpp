@@ -212,21 +212,26 @@ int main(int argc, char* argv[])
 	shadowGenShader.Load("../src/Shaders/ShadowShaders/ShadowGenVertex.glsl",
 						 "../src/Shaders/ShadowShaders/ShadowGenFragment.glsl");
 
-	//initializing shadowmap technique
-	ShadowMapTechnique shadowMapTechnique(&shadowMapFBO);
-	shadowMapTechnique.Init(normalMapShader);
-	ShadowMapTechnique shadowMapTechnique1(&shadowMapFBO);
-	shadowMapTechnique1.Init(shadowShader);
 
-	GLint normalMapID = glGetUniformLocation(normalMapShader.Program(), "normalMap");
-	GLint colorMapID = glGetUniformLocation(normalMapShader.Program(), "colorMap");
 
 	Texture normalTex(GL_TEXTURE_2D, "../normal map/normal_map.jpg");
 
 	Texture colorTex(GL_TEXTURE_2D, "../normal map/bricks.jpg");
 
-	colorTex.Load();
-	normalTex.Load();
+	//initializing shadowmap technique
+	ShadowMapTechnique shadowMapTechnique(&shadowMapFBO, &shadowCamera);
+
+	NormalMapTechnique normalMapTechnique(normalTex, colorTex);
+
+	cube.AddLightningTechnique(shadowMapTechnique);
+	cube3.AddLightningTechnique(shadowMapTechnique);
+
+	plane.AddLightningTechnique(shadowMapTechnique);
+	plane.AddLightningTechnique(normalMapTechnique);
+
+	plane.InitLightningTechniques();
+	cube.InitLightningTechniques();
+	cube3.InitLightningTechniques();
 
 
 	do
@@ -234,7 +239,6 @@ int main(int argc, char* argv[])
 
 		//ShadowMap pass
 		glCullFace(GL_FRONT);
-
 		shadowMapTechnique.WriteShadowTexture();
 		cube.LoadShader(shadowGenShader);
 		cube.Draw(shadowCamera);
@@ -242,33 +246,17 @@ int main(int argc, char* argv[])
 		cube2.Draw(shadowCamera);
 		cube3.LoadShader(shadowGenShader);
 		cube3.Draw(shadowCamera);
-
 		glCullFace(GL_BACK);
 
 		//Render pass
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-		normalMapShader.UseProgram();
-		shadowMapTechnique.ReadShadowTexture(SHADOW_TEXTURE_UNIT);
-		glUniform1i(colorMapID, COLOR_TEXTURE_UNIT - GL_TEXTURE0);
-		colorTex.Bind(COLOR_TEXTURE_UNIT);
-		glUniform1i(normalMapID, NORMAL_TEXTURE_UNIT - GL_TEXTURE0);
-		normalTex.Bind(NORMAL_TEXTURE_UNIT);
-
-		shadowMapTechnique.LoadLightBiasMVP(normalMapShader, shadowCamera, plane);// loads to shadow shader uniform light bias mvp
-
 		plane.DrawIlluminated(camera, glm::vec4(lightDirection,1.0f));
 
-		shadowShader.UseProgram();
-		shadowMapTechnique1.ReadShadowTexture(SHADOW_TEXTURE_UNIT);
-		shadowMapTechnique1.LoadLightBiasMVP(shadowShader,shadowCamera, cube);
 		cube.LoadShader(shadowShader);
 		cube.DrawIlluminated(camera, glm::vec4(lightDirection, 1.0f));
 
-		shadowShader.UseProgram();
-		shadowMapTechnique1.ReadShadowTexture(SHADOW_TEXTURE_UNIT);
-		shadowMapTechnique1.LoadLightBiasMVP(shadowShader,shadowCamera, cube3);
 		cube3.LoadShader(shadowShader);
 		cube3.DrawIlluminated(camera, glm::vec4(lightDirection,1.0f));
 
