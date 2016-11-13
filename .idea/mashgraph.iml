@@ -2,8 +2,10 @@
 <module type="CPP_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src/GraphicalObject.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/Vertex.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/LightningTechnique.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/TangentSpace.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/Window.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/Shader.h" isTestSource="false" />

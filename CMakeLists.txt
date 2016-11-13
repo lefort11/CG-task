@@ -116,7 +116,7 @@ endif(APPLE)
 
 #set (CMAKE_SHARED_LINKER_FLAGS "-lglut -lX11 -lGL -lGlEW")
 
-set(SOURCE_FILES src/main.cpp src/Window.h src/Engine.h src/Camera.h src/Shader.h src/TangentSpace.h src/Vertex.h)
+set(SOURCE_FILES src/main.cpp src/Window.h src/Engine.h src/Camera.h src/Shader.h src/TangentSpace.h src/Vertex.h src/LightningTechnique.h src/GraphicalObject.h)
 add_executable(mashgraph ${SOURCE_FILES})
 if(APPLE)
     FIND_LIBRARY(COCOA_LIBRARY Cocoa)
