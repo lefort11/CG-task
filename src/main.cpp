@@ -12,13 +12,14 @@
 #define WIDTH 800
 #define  HEIGHT 800
 
-Vertex const planeVertices[] =
+Vertex planeVertices[] =
 		{
 				{glm::vec3(10.0f, -0.5f, 10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0,0}},
-				{glm::vec3(-10.0f, -0.5f, 10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0,1}},
-				{glm::vec3(-10.0f, -0.5f, -10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1,0}},
-				{glm::vec3(10.0f, -0.5f, -10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1,1}}
+				{glm::vec3(-10.0f, -0.5f, 10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1,0}},
+				{glm::vec3(-10.0f, -0.5f, -10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1,1}},
+				{glm::vec3(10.0f, -0.5f, -10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0,1}}
 		};
+
 
 Vertex const planeVertices2[] =
 		{
@@ -124,10 +125,8 @@ GLuint cube_indices[] =
 		};
 
 
-//glm::vec3 lightPosition = {-1.0f, 1.0f, 2.0f};
 
 glm::vec3 lightDirection = glm::vec3(0.5f, -0.5f, -1.0f);
-
 
 
 int main(int argc, char* argv[])
@@ -139,11 +138,15 @@ int main(int argc, char* argv[])
 	OrbitalCamera camera(WIDTH, HEIGHT);
 
 
+	CalculateTangentSpace(planeVertices, sizeof(planeVertices)/sizeof(planeVertices[0]), planeIndices,
+			sizeof(planeIndices)/sizeof(planeIndices[0]));
+
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
+//	glEnable(GL_TEXTURE_2D);
 
 	Skybox skybox("./Yokohama2/posx.jpg", "./Yokohama2/negx.jpg", "./Yokohama2/posy.jpg", "./Yokohama2/negy.jpg",
 				  "./Yokohama2/posz.jpg",
@@ -168,7 +171,7 @@ int main(int argc, char* argv[])
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 
 
-	Shader skyboxShader, shadowShader, cubemapReflectionShader;
+	Shader skyboxShader, shadowShader, cubemapReflectionShader, normalMapShader;
 	//shader compilation
 	skyboxShader.Load("./src/Shaders/SkyboxShaders/SkyboxVertex.glsl", "./src/Shaders/SkyboxShaders/SkyboxFragment.glsl");
 	cubemapReflectionShader.Load("./src/Shaders/SkyboxShaders/CubemapReflectionVertex.glsl",
@@ -176,14 +179,19 @@ int main(int argc, char* argv[])
 	shadowShader.Load("./src/Shaders/ShadowShaders/ShadowLightVertex.glsl",
 					  "./src/Shaders/ShadowShaders/ShadowLightFragment.glsl");
 
+	normalMapShader.Load("./src/Shaders/NormalMapShaders/NormalVertex.glsl",
+						 "./src/Shaders/NormalMapShaders/NormalFragment.glsl");
+
 	Material material;
 	Material material1;
-	material1.Shininess = 10.0f;
+	material1.Shininess = 100.0f;
 
 	cube.LoadShader(shadowShader);
 	cube2.LoadShader(cubemapReflectionShader);
 	skybox.LoadShader(skyboxShader);
-	plane.LoadShader(shadowShader);
+
+	plane.LoadShader(normalMapShader);
+
 	plane2.LoadShader(shadowShader);
 	cube3.LoadShader(shadowShader);
 
@@ -208,10 +216,19 @@ int main(int argc, char* argv[])
 	ShadowMapTechnique shadowMapTechnique(&shadowMapFBO);
 	shadowMapTechnique.Init(shadowShader);
 
+	GLint normalMapID = glGetUniformLocation(normalMapShader.Program(), "normalMap");
+	GLint colorMapID = glGetUniformLocation(normalMapShader.Program(), "colorMap");
+
+	Texture normalTex(GL_TEXTURE_2D, "./normal map/normal_map.jpg");
+
+	Texture colorTex(GL_TEXTURE_2D, "./normal map/bricks.jpg");
+
+	colorTex.Load();
+	normalTex.Load();
+
 
 	do
 	{
-
 
 		//ShadowMap pass
 		glCullFace(GL_FRONT);
@@ -227,11 +244,25 @@ int main(int argc, char* argv[])
 		glCullFace(GL_BACK);
 
 		//Render pass
-		shadowMapTechnique.ReadShadowTexture(GL_TEXTURE0);
-		shadowMapTechnique.LoadLightBiasMVP(shadowShader, shadowCamera, plane);// loads to shadow shader uniform light bias mvp
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
+		normalMapShader.UseProgram();
+
+		glUniform1i(colorMapID, COLOR_TEXTURE_UNIT - GL_TEXTURE0);
+		colorTex.Bind(COLOR_TEXTURE_UNIT);
+
+		glUniform1i(normalMapID, NORMAL_TEXTURE_UNIT - GL_TEXTURE0);
+		normalTex.Bind(NORMAL_TEXTURE_UNIT);
+
+		shadowShader.UseProgram();
+		shadowMapTechnique.ReadShadowTexture(SHADOW_TEXTURE_UNIT);
+		shadowMapTechnique.LoadLightBiasMVP(normalMapShader, shadowCamera, plane);// loads to shadow shader uniform light bias mvp
+
+
 		plane.DrawIlluminated(camera, glm::vec4(lightDirection,1.0f));
 
-
+		shadowMapTechnique.LoadLightBiasMVP(shadowShader,shadowCamera, cube);
 		cube.LoadShader(shadowShader);
 		cube.DrawIlluminated(camera, glm::vec4(lightDirection, 1.0f));
 

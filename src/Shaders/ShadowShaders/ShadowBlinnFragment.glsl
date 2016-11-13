@@ -9,7 +9,7 @@ uniform float shininess = 10.0;
 uniform vec4 lightDiffuse = vec4(1.0,1.0,1.0,1.0);
 uniform vec4 lightAmbient = vec4(0.2,0.2,0.2,1.0);
 
-uniform sampler2DShadow gShadowMap;
+uniform sampler2DShadow shadowMap;
 
 
 vec4 GetAmbientReflection(vec4 materialColor, vec4 lightColor)
@@ -112,7 +112,7 @@ void main()
        // int index = int(16.0*random(floor(modelPosition3.xyz*10000.0), i))%16;
 
         visibility -= 0.2*
-        (1.0 - texture(gShadowMap, vec3(ShadowCoord.xy + poissonDisk[i] / 650.0, (ShadowCoord.z - bias)/ShadowCoord.w)));
+        (1.0 - texture(shadowMap, vec3(ShadowCoord.xy + poissonDisk[i] / 650.0, (ShadowCoord.z - bias)/ShadowCoord.w)));
     }
 
     color = visibility * GetBlinnReflection(

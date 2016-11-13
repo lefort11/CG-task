@@ -21,17 +21,18 @@
 #include "Camera.h"
 #include "Shader.h"
 
-#include "GraphicalObject.h"
+
+#include "Vertex.h"
+
+#include "TangentSpace.h"
+
+#define SHADOW_TEXTURE_UNIT GL_TEXTURE0
+#define COLOR_TEXTURE_UNIT GL_TEXTURE1
+#define NORMAL_TEXTURE_UNIT GL_TEXTURE2
+#define SKYBOX_TEXTURE_UNIT GL_TEXTURE3
 
 
 
-struct Vertex
-{
-	glm::vec3 m_Position;
-	glm::vec3 m_Normal;
-	glm::vec3 m_Color;
-	glm::vec2 m_TexCoords;
-};
 
 
 class Mesh
@@ -63,6 +64,10 @@ public:
 		glGenBuffers(1, &m_ElementBuffer);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ElementBuffer);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesNumber * sizeof(GLuint), indices, GL_STATIC_DRAW);
+
+
+		//calculating tangents
+
 
 		glBindVertexArray(0);
 
@@ -99,6 +104,10 @@ public:
 		glEnableVertexAttribArray(3);
 		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, m_TexCoords));
 
+		//tangent
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, m_Tangent));
+
 		//indices
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ElementBuffer);
 
@@ -109,9 +118,69 @@ public:
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
 		glDisableVertexAttribArray(2);
+		glDisableVertexAttribArray(3);
+		glDisableVertexAttribArray(4);
 
 		glBindVertexArray(0);
 
+	}
+
+};
+
+class Texture
+{
+	std::string m_Filename;
+	GLenum m_TextureTarget;
+	GLuint m_TextureObj;
+	FIBITMAP* m_pImage;
+
+public:
+	Texture(GLenum TextureTarget, const std::string& FileName)
+	{
+		m_TextureTarget = TextureTarget;
+		m_Filename = FileName;
+		m_pImage = nullptr;
+	}
+
+	void Load()
+	{
+		glGenTextures(1, &m_TextureObj);
+		glBindTexture(m_TextureTarget, m_TextureObj);
+
+		FIBITMAP* bitmap = FreeImage_Load(FreeImage_GetFileType(m_Filename.c_str()), m_Filename.c_str());
+		unsigned width = FreeImage_GetWidth(bitmap);
+		unsigned height = FreeImage_GetHeight(bitmap);
+
+
+		m_pImage = FreeImage_ConvertTo32Bits(bitmap);
+		FreeImage_FlipVertical(m_pImage); // KEK
+
+		glTexImage2D(m_TextureTarget, 0, GL_RGBA, width, height,
+ 					0, GL_BGRA, GL_UNSIGNED_BYTE, (void*)FreeImage_GetBits(m_pImage));
+//		glTexParameteri(m_TextureTarget, GL_TEXTURE_WRAP_S, GL_REPEAT);
+//		glTexParameteri(m_TextureTarget, GL_TEXTURE_WRAP_T, GL_REPEAT);
+//		glTexParameteri(m_TextureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//		glTexParameteri(m_TextureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+//		glGenerateMipmap(m_TextureTarget);
+		glTexParameterf(m_TextureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameterf(m_TextureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(m_TextureTarget, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(m_TextureTarget, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+
+		FreeImage_Unload(bitmap);
+	}
+
+	void Bind(GLenum TextureUnit) const
+	{
+		glActiveTexture(TextureUnit);
+		glBindTexture(m_TextureTarget, m_TextureObj);
+	}
+
+
+	~Texture()
+	{
+		FreeImage_Unload(m_pImage);
 	}
 
 };
@@ -142,7 +211,7 @@ public:
 class GraphicalObject
 {
 	Mesh m_Mesh;
-	glm::vec3 centerOffset;
+	glm::vec3 m_CenterOffset;
 
 	Shader* m_pShader;
 
@@ -169,7 +238,7 @@ public:
 	GraphicalObject(Vertex const* vertices, unsigned const verticesNumber, GLuint const* indices,
 					unsigned const indicesNumber, glm::vec3 const& offset):
 			m_Mesh(vertices,  verticesNumber, indices, indicesNumber),
-			centerOffset(offset)
+			m_CenterOffset(offset)
 	{}
 
 	~GraphicalObject()
@@ -210,7 +279,7 @@ public:
 		m_pShader->UseProgram();
 
 		glm::mat4 mvp;
-		glm::mat4 model = glm::translate(centerOffset);
+		glm::mat4 model = glm::translate(m_CenterOffset);
 		camera.GetMVP(mvp, model);
 
 		glm::mat4 view;
@@ -236,7 +305,7 @@ public:
 		m_pShader->UseProgram();
 
 		glm::mat4 mvp;
-		glm::mat4 model = glm::translate(centerOffset);
+		glm::mat4 model = glm::translate(m_CenterOffset);
 		camera.GetMVP(mvp, model);
 
 		glm::mat4 view;
@@ -279,7 +348,7 @@ public:
 
 	void GetModelMatrix(glm::mat4& model) const
 	{
-		model = glm::translate(centerOffset);
+		model = glm::translate(m_CenterOffset);
 	}
 
 
@@ -314,7 +383,6 @@ public:
 		glGenTextures(1, &m_TextureObj);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, m_TextureObj);
 
-		//glActiveTexture(GL_TEXTURE0); // ?? in Bind method
 
 		FIBITMAP* bitmap = nullptr;
 		int width, height;
@@ -343,6 +411,7 @@ public:
 						 0, GL_BGRA, GL_UNSIGNED_BYTE, (void*)FreeImage_GetBits(pImage));
 
 			FreeImage_Unload(bitmap);
+			FreeImage_Unload(pImage);
 
 		}
 
@@ -357,7 +426,7 @@ public:
 
 	void Bind(GLenum textureUnit)
 	{
-		glActiveTexture(textureUnit); // GL_TEXTURE 0
+		glActiveTexture(textureUnit);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, m_TextureObj);
 	}
 
@@ -392,7 +461,7 @@ public:
 
 	void Draw(OrbitalCamera const& camera)
 	{
-		m_CubemapTex.Bind(GL_TEXTURE0);
+		m_CubemapTex.Bind(SKYBOX_TEXTURE_UNIT);
 
 		GLint OldCullFaceMode;
 		glGetIntegerv(GL_CULL_FACE_MODE, &OldCullFaceMode);
@@ -449,11 +518,13 @@ public:
 		glGenFramebuffers(1, &m_FBO);
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_FBO);
 
+		glViewport(0, 0, width, height);
+
 
 		// Создаем буфер глубины
 		glGenTextures(1, &m_ShadowMap);
 		glBindTexture(GL_TEXTURE_2D, m_ShadowMap);
-		glTexImage2D(GL_TEXTURE_2D, 0,GL_DEPTH_COMPONENT16, width, height, 0,GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, width, height, 0,GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -461,6 +532,12 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+
+/*		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE); */
 
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_ShadowMap, 0);
 
@@ -485,7 +562,6 @@ public:
 
 	void BindForReading(GLenum TextureUnit)
 	{
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glActiveTexture(TextureUnit);
 		glBindTexture(GL_TEXTURE_2D, m_ShadowMap);
 	}
@@ -510,7 +586,7 @@ public:
 	}
 	void Init(Shader const& shader)
 	{
-		m_TextureLocation = glGetUniformLocation(shader.Program(),"gShadowMap");
+		m_TextureLocation = glGetUniformLocation(shader.Program(),"shadowMap");
 		m_LightBiasMVPID = glGetUniformLocation(shader.Program(), "lightBiasMVP");
 	}
 
@@ -539,11 +615,10 @@ public:
 		glClear(GL_DEPTH_BUFFER_BIT);
 	}
 
-	void ReadShadowTexture(GLint textureUnit)
+	void ReadShadowTexture(GLenum textureUnit)
 	{
-		SetTextureUnit(textureUnit);
-		m_pShadowMapFBO->BindForReading(GL_TEXTURE0);
-		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+		SetTextureUnit(textureUnit - GL_TEXTURE0);
+		m_pShadowMapFBO->BindForReading(textureUnit);
 	}
 
 
@@ -551,6 +626,8 @@ public:
 	{
 		glUniform1i(m_TextureLocation, textureUnit);
 	}
+
+
 };
 
 

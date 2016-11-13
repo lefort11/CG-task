@@ -2,7 +2,7 @@
 
 
 
-uniform sampler2DShadow gShadowMap;
+uniform sampler2DShadow shadowMap;
 
 uniform vec4 MaterialSpecular;
 uniform vec4 MaterialAmbient;
@@ -50,8 +50,8 @@ vec4 GetSpecularReflection(
 }
 
 vec4 GetBlinnReflection(
-	vec4 ambientSurfaceColor,
-    vec4 ambientLightColor,
+//	vec4 ambientSurfaceColor,
+  //  vec4 ambientLightColor,
     vec4 diffuseSurfaceColor,
     vec4 specularSurfaceColor,
     float  surfaceShininess,
@@ -60,7 +60,7 @@ vec4 GetBlinnReflection(
     vec3 lightDirection,
     vec4 lightColor) {
 
-	vec4 ambient = GetAmbientReflection(ambientSurfaceColor, ambientLightColor);
+//	vec4 ambient = GetAmbientReflection(ambientSurfaceColor, ambientLightColor);
 
 	vec4 diffuse = GetDiffuseReflection(
 		diffuseSurfaceColor,
@@ -80,7 +80,8 @@ vec4 GetBlinnReflection(
 		specular = vec4(0.0, 0.0, 0.0, 0.0);
 	}
 
-	return diffuse + specular + ambient;
+//	return diffuse + specular + ambient;
+    return diffuse + specular;
 }
 
 vec2 poissonDisk[16] = vec2[](
@@ -145,20 +146,20 @@ void main()
     for(int i = 0; i < 4; ++i)
     {
         visibility -= 0.2*
-        (1.0-texture( gShadowMap, vec3(ShadowCoord.xy + poissonDisk[i]/650.0,  (ShadowCoord.z-bias)/ShadowCoord.w) ));
+        (1.0-texture( shadowMap, vec3(ShadowCoord.xy + poissonDisk[i]/650.0,  (ShadowCoord.z-bias)/ShadowCoord.w) ));
     }
 
 
-    color = visibility *
-    GetBlinnReflection(MaterialAmbient,
-                        LightAmbient,
+    color = (visibility *
+    GetBlinnReflection(//MaterialAmbient,
+                        //LightAmbient,
                         MaterialDiffuse,
                         MaterialSpecular,
                         Shininess,
                         n,
                         halfAngle,
                         l,
-                        LightDiffuse) * fragmentColor;
+                        LightDiffuse) + GetAmbientReflection(MaterialAmbient, LightAmbient)) * fragmentColor;
 
 
 }
