@@ -118,7 +118,9 @@ endif(APPLE)
 
 set(SOURCE_FILES src/main.cpp src/Window.h src/Engine.h src/Camera.h src/Shader.h src/TangentSpace.h src/Vertex.h)
 add_executable(mashgraph ${SOURCE_FILES})
-FIND_LIBRARY(COCOA_LIBRARY Cocoa)
+if(APPLE)
+    FIND_LIBRARY(COCOA_LIBRARY Cocoa)
+endif(APPLE)
 
 
 target_link_libraries(mashgraph ${FREEIMAGE_LIBRARY})
