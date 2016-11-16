@@ -11,6 +11,8 @@ in vec3 tangent_worldSpace;
 
 in vec2 texCoordOut;
 
+in mat3 invTBN;
+
 uniform vec4 MaterialSpecular;
 uniform vec4 MaterialAmbient;
 uniform vec4 MaterialDiffuse;
@@ -135,22 +137,22 @@ float random(vec3 seed, int i)
 }
 
 
-vec3 CalcBumpedNormal(in vec2 texCoord, out mat3 TBN)
+vec3 CalcBumpedNormal(in vec2 texCoord)
 {
     vec3 Normal = normalize(normal_worldSpace);
     vec3 Tangent = normalize(tangent_worldSpace);
     Tangent = normalize(Tangent - dot(Tangent, Normal) * Normal);
-    vec3 Bitangent = cross(Tangent, Normal);
+    vec3 Bitangent = normalize(cross(Tangent, Normal));
     vec3 BumpMapNormal = texture(normalMap, texCoord).rgb;
     BumpMapNormal = 2.0 * BumpMapNormal - vec3(1.0, 1.0, 1.0);
     vec3 NewNormal;
-    TBN = mat3(Tangent, Bitangent, Normal);
+    mat3 TBN = mat3(Tangent, Bitangent, Normal);
     NewNormal = TBN * BumpMapNormal; // from tangent space to world space
     NewNormal = normalize(NewNormal);
     return NewNormal;
 }
 
-/*vec2 ParallaxMapping(in vec3 eyeDirection, in vec2 texCoords, out float parallaxHeight)
+vec2 ParallaxMapping(in vec3 eyeDirection, in vec2 texCoords, out float parallaxHeight)
 {
     // determine required number of layers
        const float minLayers = 10;
@@ -162,7 +164,8 @@ vec3 CalcBumpedNormal(in vec2 texCoord, out mat3 TBN)
        // depth of current layer
        float currentLayerHeight = 0;
        // shift of texture coordinates for each iteration
-       vec2 dtex = ParallaxScale * eyeDirection.xy / eyeDirection.z / numLayers;
+       vec2 dtex = ParallaxScale *
+                    vec2(eyeDirection.x / eyeDirection.z / numLayers, -eyeDirection.y / eyeDirection.z / numLayers);
 
        // current texture coordinates
        vec2 currentTextureCoords = texCoords;
@@ -220,20 +223,65 @@ vec3 CalcBumpedNormal(in vec2 texCoord, out mat3 TBN)
        // return results
        parallaxHeight = currentLayerHeight;
        return currentTextureCoords;
-} */
-
-vec2 ParallaxMapping(vec3 eyeDirection, vec2 texCoordOut)
-{
-    float height = texture(heightMap, texCoordOut).r;
-    vec2 p = eyeDirection.xy / eyeDirection.z * (height * ParallaxScale);
-    return texCoordOut + p;
 }
 
-/*
-float SelfShadowing()
-{
 
-} */
+float SelfShadowing(in vec3 L, in vec2 initialTexCoord, in float initialHeight)
+{
+   float shadowMultiplier = 1;
+
+   const float minLayers = 15;
+   const float maxLayers = 30;
+
+   // calculate lighting only for surface oriented to the light source
+   if(dot(vec3(0, 0, 1), L) > 0)
+   {
+      // calculate initial parameters
+      float numSamplesUnderSurface	= 0;
+      shadowMultiplier	= 0;
+      float numLayers	= mix(maxLayers, minLayers, abs(dot(vec3(0, 0, 1), L)));
+      float layerHeight	= initialHeight / numLayers;
+      vec2 texStep	= ParallaxScale * L.xy / L.z / numLayers;
+
+      // current parameters
+      float currentLayerHeight	= initialHeight - layerHeight;
+      vec2 currentTextureCoords	= initialTexCoord + texStep;
+      float heightFromTexture	= texture(heightMap, currentTextureCoords).r;
+      int stepIndex	= 1;
+
+      // while point is below depth 0.0 )
+      while(currentLayerHeight > 0)
+      {
+         // if point is under the surface
+         if(heightFromTexture < currentLayerHeight)
+         {
+            // calculate partial shadowing factor
+            numSamplesUnderSurface	+= 1;
+            float newShadowMultiplier	= (currentLayerHeight - heightFromTexture) *
+                                             (1.0 - stepIndex / numLayers);
+            shadowMultiplier	= max(shadowMultiplier, newShadowMultiplier);
+         }
+
+         // offset to the next layer
+         stepIndex	+= 1;
+         currentLayerHeight	-= layerHeight;
+         currentTextureCoords	+= texStep;
+         heightFromTexture	= texture(heightMap, currentTextureCoords).r;
+      }
+
+      // Shadowing factor should be 1 if there were no points under the surface
+      if(numSamplesUnderSurface < 1)
+      {
+         shadowMultiplier = 1;
+      }
+      else
+      {
+         shadowMultiplier = 1.0 - shadowMultiplier;
+      }
+   }
+   return shadowMultiplier;
+
+}
 
 
 void main()
@@ -243,17 +291,16 @@ void main()
 //    vec3 n = normalize(normal_worldSpace);
     float parallaxHeight;
 
-    mat3 TBN;
 
-    vec3 kal = CalcBumpedNormal(texCoordOut, TBN);
+    vec3 kal = CalcBumpedNormal(texCoordOut);
 
 
     vec3 v = normalize(eyeDirection_worldSpace);
 
 
-    vec2 newTexCoords = ParallaxMapping(v, texCoordOut);
+    vec2 newTexCoords = ParallaxMapping(v, texCoordOut, parallaxHeight);
 
-    vec3 n = CalcBumpedNormal(newTexCoords, TBN);
+    vec3 n = CalcBumpedNormal(newTexCoords);
 
     vec3 l = normalize(lightDirection_worldSpace);
 
@@ -261,7 +308,7 @@ void main()
     vec3 halfAngle = normalize(l + v);
 
 
-    vec4 MaterialDiffuseColor = texture(colorMap, texCoordOut) * MaterialDiffuse;
+    vec4 MaterialDiffuseColor = texture(colorMap, newTexCoords) * MaterialDiffuse;
 //    vec4 MaterialDiffuseColor = MaterialDiffuse;
 
     vec4 MaterialAmbientColor = MaterialAmbient;
@@ -276,7 +323,9 @@ void main()
         (1.0 - texture(shadowMap, vec3(ShadowCoord.xy + poissonDisk[i]/650.0,  (ShadowCoord.z-bias)/ShadowCoord.w) ));
     }
 
-    color = (visibility *
+    float shadowMultiplier = SelfShadowing(l, newTexCoords, parallaxHeight - 0.05);
+
+    color = (shadowMultiplier * visibility *
     GetBlinnReflection( MaterialDiffuseColor,
                         MaterialSpecularColor,
                         Shininess,

@@ -12,14 +12,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dce5adba-0fe7-443d-abb7-eba8b5ef9acb" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/ReflectionTechnique.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Camera.h" afterPath="$PROJECT_DIR$/src/Camera.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Engine.h" afterPath="$PROJECT_DIR$/src/Engine.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/GraphicalObject.h" afterPath="$PROJECT_DIR$/src/GraphicalObject.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/LightningTechnique.h" afterPath="$PROJECT_DIR$/src/LightningTechnique.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Shaders/NormalMapShaders/NormalFragment.glsl" afterPath="$PROJECT_DIR$/src/Shaders/NormalMapShaders/NormalFragment.glsl" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Window.h" afterPath="$PROJECT_DIR$/src/Window.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Shaders/Parallax/ParallaxFragment.glsl" afterPath="$PROJECT_DIR$/src/Shaders/Parallax/ParallaxFragment.glsl" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Shaders/Parallax/ParallaxVertex.glsl" afterPath="$PROJECT_DIR$/src/Shaders/Parallax/ParallaxVertex.glsl" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main.cpp" afterPath="$PROJECT_DIR$/src/main.cpp" />
     </list>
     <ignored path="mashgraph.iws" />
@@ -40,11 +35,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="main.cpp" pinned="false" current-in-tab="false">
+      <file leaf-file-name="main.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="180">
-              <caret line="213" column="67" selection-start-line="213" selection-start-column="67" selection-end-line="213" selection-end-column="67" />
+            <state relative-caret-position="318">
+              <caret line="283" column="5" selection-start-line="283" selection-start-column="5" selection-end-line="283" selection-end-column="5" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
               </folding>
@@ -52,20 +47,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ParallaxFragment.glsl" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/Shaders/Parallax/ParallaxFragment.glsl">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="423">
-              <caret line="253" column="40" selection-start-line="253" selection-start-column="40" selection-end-line="253" selection-end-column="40" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="Engine.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Engine.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-345">
+            <state relative-caret-position="498">
               <caret line="83" column="0" selection-start-line="83" selection-start-column="0" selection-end-line="83" selection-end-column="0" />
               <folding>
                 <element signature="e#35#51#0" expanded="true" />
@@ -74,11 +59,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ParallaxVertex.glsl" pinned="false" current-in-tab="true">
+      <file leaf-file-name="ParallaxVertex.glsl" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Shaders/Parallax/ParallaxVertex.glsl">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="423">
-              <caret line="49" column="31" selection-start-line="49" selection-start-column="31" selection-end-line="49" selection-end-column="31" />
+            <state relative-caret-position="348">
+              <caret line="57" column="45" selection-start-line="57" selection-start-column="45" selection-end-line="57" selection-end-column="45" />
               <folding />
             </state>
           </provider>
@@ -87,7 +72,7 @@
       <file leaf-file-name="Texture.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Texture.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="315">
+            <state relative-caret-position="-75">
               <caret line="33" column="5" selection-start-line="33" selection-start-column="5" selection-end-line="33" selection-end-column="5" />
               <folding />
             </state>
@@ -600,12 +585,13 @@
       <workItem from="1479290111876" duration="215000" />
       <workItem from="1479291125017" duration="58000" />
       <workItem from="1479297234035" duration="4671000" />
-      <workItem from="1479309358980" duration="7148000" />
+      <workItem from="1479309358980" duration="8130000" />
+      <workItem from="1479318347310" duration="1165000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="169813000" />
+    <option name="totallyTimeSpent" value="171960000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -900,7 +886,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-2380">
           <caret line="4" column="40" selection-start-line="4" selection-start-column="40" selection-end-line="4" selection-end-column="40" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -962,13 +947,12 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="123">
           <caret line="142" column="19" selection-start-line="142" selection-start-column="19" selection-end-line="142" selection-end-column="19" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Engine.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-345">
+        <state relative-caret-position="498">
           <caret line="83" column="0" selection-start-line="83" selection-start-column="0" selection-end-line="83" selection-end-column="0" />
           <folding>
             <element signature="e#35#51#0" expanded="true" />
@@ -976,37 +960,37 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/Shaders/Parallax/ParallaxVertex.glsl">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="348">
+          <caret line="57" column="45" selection-start-line="57" selection-start-column="45" selection-end-line="57" selection-end-column="45" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/Texture.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
+        <state relative-caret-position="-75">
           <caret line="33" column="5" selection-start-line="33" selection-start-column="5" selection-end-line="33" selection-end-column="5" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Shaders/Parallax/ParallaxFragment.glsl">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="261">
+          <caret line="327" column="32" selection-start-line="327" selection-start-column="32" selection-end-line="327" selection-end-column="32" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="213" column="67" selection-start-line="213" selection-start-column="67" selection-end-line="213" selection-end-column="67" />
+        <state relative-caret-position="318">
+          <caret line="283" column="5" selection-start-line="283" selection-start-column="5" selection-end-line="283" selection-end-column="5" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Shaders/Parallax/ParallaxFragment.glsl">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="423">
-          <caret line="253" column="40" selection-start-line="253" selection-start-column="40" selection-end-line="253" selection-end-column="40" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Shaders/Parallax/ParallaxVertex.glsl">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="423">
-          <caret line="49" column="31" selection-start-line="49" selection-start-column="31" selection-end-line="49" selection-end-column="31" />
-          <folding />
         </state>
       </provider>
     </entry>

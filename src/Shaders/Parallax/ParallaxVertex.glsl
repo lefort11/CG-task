@@ -26,6 +26,8 @@ out vec3 tangent_worldSpace;
 
 out vec2 texCoordOut;
 
+out mat3 invTBN;
+
 
 void main()
 {
@@ -48,6 +50,15 @@ void main()
         tangent_worldSpace = (model * vec4(vertexTangent, 1.0)).xyz;
 
         texCoordOut = texCoord;
+/*        vec3 T = normalize(tangent_worldSpace);
+        vec3 N = normalize(model * vec4(vertexNormal_modelSpace, 1)).xyz;
+        T = normalize(T - dot(T, N) * N);
+        vec3 B = normalize(cross(T, N));
+
+        invTBN = transpose(mat3(T, B, N)); */
+
+
+
 
 
 }

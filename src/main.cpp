@@ -204,7 +204,7 @@ int main(int argc, char* argv[])
 
 
 
-	Texture normalTex(GL_TEXTURE_2D, "../normal map/normal_up.jpg");
+	Texture normalTex(GL_TEXTURE_2D, "../normal map/normal_map.jpg");
 
 	Texture colorTex(GL_TEXTURE_2D, "../normal map/bricks.jpg");
 
