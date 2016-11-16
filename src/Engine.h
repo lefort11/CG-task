@@ -31,17 +31,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 class CubemapTexture
 {
 	std::string  m_Filenames[6];
@@ -170,7 +159,6 @@ public:
 		glDepthMask(GL_TRUE);
 
 	}
-
 
 };
 

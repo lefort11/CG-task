@@ -15,7 +15,7 @@ public:
 	{
 		glfwInit();
 
-		glfwWindowHint ( GLFW_RESIZABLE, 1 );
+		glfwWindowHint ( GLFW_RESIZABLE, GL_FALSE );
 		glfwWindowHint ( GLFW_DOUBLEBUFFER, 1 );
 		glfwWindowHint ( GLFW_DEPTH_BITS, 24 );
 

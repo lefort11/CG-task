@@ -7,6 +7,7 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/euler_angles.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 #include <string>
 #include <iostream>
@@ -139,6 +140,8 @@ class GraphicalObject
 {
 	Mesh m_Mesh;
 	glm::vec3 m_CenterOffset;
+	glm::vec3 m_Rotate;
+	glm::vec3 m_Scale;
 
 	Shader* m_pShader;
 
@@ -165,9 +168,10 @@ class GraphicalObject
 
 public:
 	GraphicalObject(Vertex const* vertices, unsigned const verticesNumber, GLuint const* indices,
-					unsigned const indicesNumber, glm::vec3 const& offset):
+					unsigned const indicesNumber, glm::vec3 const& offset, glm::vec3 const& rotate = glm::vec3(0.0f),
+					glm::vec3 scale = glm::vec3(1.0f)):
 			m_Mesh(vertices,  verticesNumber, indices, indicesNumber),
-			m_CenterOffset(offset)
+			m_CenterOffset(offset), m_Rotate(rotate), m_Scale(scale)
 	{}
 
 	void LoadLightningTechniques(std::vector<LightningTechnique*> lightningTechniques)
@@ -230,7 +234,7 @@ public:
 
 
 		glm::mat4 mvp;
-		glm::mat4 model = glm::translate(m_CenterOffset);
+		glm::mat4 model = glm::translate(m_CenterOffset) * glm::toMat4(glm::quat(m_Rotate)) * glm::scale(m_Scale);
 		camera.GetMVP(mvp, model);
 
 
@@ -258,7 +262,7 @@ public:
 		m_pShader->UseProgram();
 
 		glm::mat4 mvp;
-		glm::mat4 model = glm::translate(m_CenterOffset);
+		glm::mat4 model = glm::translate(m_CenterOffset) * glm::toMat4(glm::quat(m_Rotate)) * glm::scale(m_Scale);
 		camera.GetMVP(mvp, model);
 
 		glm::mat4 view;

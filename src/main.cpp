@@ -14,20 +14,13 @@
 
 Vertex planeVertices[] =
 		{
-				{glm::vec3(10.0f, -0.5f, 10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0,0}},
-				{glm::vec3(-10.0f, -0.5f, 10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1,0}},
-				{glm::vec3(-10.0f, -0.5f, -10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1,1}},
-				{glm::vec3(10.0f, -0.5f, -10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0,1}}
+				{glm::vec3(10.0f, -0.5f, 10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1,1}},
+				{glm::vec3(-10.0f, -0.5f, 10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0,1}},
+				{glm::vec3(-10.0f, -0.5f, -10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0,0}},
+				{glm::vec3(10.0f, -0.5f, -10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1,0}}
 		};
 
 
-Vertex const planeVertices2[] =
-		{
-				{glm::vec3(10.0f, -10.0f, 10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0,0}},
-				{glm::vec3(-10.0f, -10.0f, 10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0,1}},
-				{glm::vec3(-10.0f, 10.0f, -10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1,0}},
-				{glm::vec3(10.0f, 10.0f, -10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1,1}}
-		};
 
 GLuint const planeIndices[] =
 		{
@@ -137,41 +130,31 @@ int main(int argc, char* argv[])
 
 	OrbitalCamera camera(WIDTH, HEIGHT);
 
-
 	CalculateTangentSpace(planeVertices, sizeof(planeVertices)/sizeof(planeVertices[0]), planeIndices,
 			sizeof(planeIndices)/sizeof(planeIndices[0]));
-
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
-//	glEnable(GL_TEXTURE_2D);
 
 	Skybox skybox("../Yokohama2/posx.jpg", "../Yokohama2/negx.jpg", "../Yokohama2/posy.jpg", "../Yokohama2/negy.jpg",
 				  "../Yokohama2/posz.jpg",
 				  "../Yokohama2/negz.jpg");
 
 	GraphicalObject cube(cube_vertices, sizeof(cube_vertices)/sizeof(cube_vertices[0]),
-			  cube_indices, sizeof(cube_indices)/sizeof(cube_indices[0]), glm::vec3(0.0f, 0.0f, 0.0f));
-
-
+			  cube_indices, sizeof(cube_indices)/sizeof(cube_indices[0]), glm::vec3(0.0f), glm::vec3(0.0f));
 	GraphicalObject cube2(cube_vertices, sizeof(cube_vertices)/sizeof(cube_vertices[0]),
 						 cube_indices, sizeof(cube_indices)/sizeof(cube_indices[0]), glm::vec3(1.0f, 1.0f, 0.0f));
-
-
 	GraphicalObject cube3(cube_vertices2, sizeof(cube_vertices2)/sizeof(cube_vertices[2]),
 						  cube_indices, sizeof(cube_indices)/sizeof(cube_indices[0]), glm::vec3(1.0f, 1.0f, -5.0f));
-
-
 	GraphicalObject plane(planeVertices, 4, planeIndices, 6, {0.0f, 0.0f, 0.0f});
-	GraphicalObject plane2(planeVertices2, 4, planeIndices, 6, {0.0f, 0.0f, -5.0f});
 
 
-	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+	GraphicalObject plane2(planeVertices, 4, planeIndices, 6, glm::vec3(0.0f, 4.0f, -9.0f), glm::vec3(F_PI/2, 0.0f, 0.0f),
+						   glm::vec3(0.5f));
 
-
-	Shader skyboxShader, shadowShader, cubemapReflectionShader, normalMapShader;
+	Shader skyboxShader, shadowShader, cubemapReflectionShader, normalMapShader, parallaxMapShader;
 	//shader compilation
 	skyboxShader.Load("../src/Shaders/SkyboxShaders/SkyboxVertex.glsl", "../src/Shaders/SkyboxShaders/SkyboxFragment.glsl");
 	cubemapReflectionShader.Load("../src/Shaders/SkyboxShaders/CubemapReflectionVertex.glsl",
@@ -181,6 +164,11 @@ int main(int argc, char* argv[])
 
 	normalMapShader.Load("../src/Shaders/NormalMapShaders/NormalVertex.glsl",
 						 "../src/Shaders/NormalMapShaders/NormalFragment.glsl");
+
+	parallaxMapShader.Load("../src/Shaders/Parallax/ParallaxVertex.glsl",
+						   "../src/Shaders/Parallax/ParallaxFragment.glsl");
+
+
 
 	Material material;
 	Material material1;
@@ -192,13 +180,15 @@ int main(int argc, char* argv[])
 
 	plane.LoadShader(normalMapShader);
 
-	plane2.LoadShader(shadowShader);
+	plane2.LoadShader(parallaxMapShader);
+
 	cube3.LoadShader(shadowShader);
 
 	cube.LoadMaterial(material);
 	cube2.LoadMaterial(material);
 	plane.LoadMaterial(material1);
 	cube3.LoadMaterial(material);
+	plane2.LoadMaterial(material1);
 
 	ShadowCamera shadowCamera(WIDTH, HEIGHT, glm::vec3(0.0f, 0.0f, 0.0f) - lightDirection, {0.0f,0.0f,0.0f});
 
@@ -214,24 +204,39 @@ int main(int argc, char* argv[])
 
 
 
-	Texture normalTex(GL_TEXTURE_2D, "../normal map/normal_map.jpg");
+	Texture normalTex(GL_TEXTURE_2D, "../normal map/normal_up.jpg");
 
 	Texture colorTex(GL_TEXTURE_2D, "../normal map/bricks.jpg");
+
+
+	Texture normalTex2(GL_TEXTURE_2D, "../bricks/bricks2_normal.jpg");
+	Texture colorTex2(GL_TEXTURE_2D, "../bricks/bricks2.jpg");
+	Texture heightTex(GL_TEXTURE_2D, "../bricks/bricks2_disp.jpg");
+
+/*	Texture normalTex2(GL_TEXTURE_2D, "../parallax map/7.jpg");
+	Texture colorTex2(GL_TEXTURE_2D, "../parallax map/6.jpg");
+	Texture heightTex(GL_TEXTURE_2D, "../parallax map/5.jpg"); */
 
 	//initializing shadowmap technique
 	ShadowMapTechnique shadowMapTechnique(&shadowMapFBO, &shadowCamera);
 
 	NormalMapTechnique normalMapTechnique(normalTex, colorTex);
 
+	ParallaxTechnique parallaxTechnique(normalTex2, colorTex2, heightTex);
+
 	cube.AddLightningTechnique(shadowMapTechnique);
 	cube3.AddLightningTechnique(shadowMapTechnique);
-
 	plane.AddLightningTechnique(shadowMapTechnique);
 	plane.AddLightningTechnique(normalMapTechnique);
+
+	plane2.AddLightningTechnique(shadowMapTechnique);
+	plane2.AddLightningTechnique(parallaxTechnique);
 
 	plane.InitLightningTechniques();
 	cube.InitLightningTechniques();
 	cube3.InitLightningTechniques();
+	plane2.InitLightningTechniques();
+
 
 
 	do
@@ -246,6 +251,7 @@ int main(int argc, char* argv[])
 		cube2.Draw(shadowCamera);
 		cube3.LoadShader(shadowGenShader);
 		cube3.Draw(shadowCamera);
+		plane2.Draw(shadowCamera);
 		glCullFace(GL_BACK);
 
 		//Render pass
@@ -253,6 +259,9 @@ int main(int argc, char* argv[])
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
 		plane.DrawIlluminated(camera, glm::vec4(lightDirection,1.0f));
+
+
+		plane2.DrawIlluminated(camera, glm::vec4(lightDirection, 1.0f));
 
 		cube.LoadShader(shadowShader);
 		cube.DrawIlluminated(camera, glm::vec4(lightDirection, 1.0f));
@@ -265,8 +274,9 @@ int main(int argc, char* argv[])
 		cube2.LoadShader(cubemapReflectionShader);
 		cube2.Draw(camera);
 
+
 		camera.Update(window);
-		shadowCamera.Update(window);
+//		shadowCamera.Update(window);
 
 		glfwSwapBuffers(window.GetGLFWPtr());
 		glfwPollEvents();

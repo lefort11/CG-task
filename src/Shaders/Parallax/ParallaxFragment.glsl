@@ -20,9 +20,14 @@ uniform sampler2D colorMap;
 uniform sampler2D normalMap;
 uniform sampler2DShadow shadowMap;
 
+uniform sampler2D heightMap;
+
+
 
 uniform vec4 LightDiffuse = vec4(1.0,1.0,1.0,1.0);
 uniform vec4 LightAmbient = vec4(0.2,0.2,0.2,1.0);
+
+uniform float ParallaxScale = 0.1;
 
 
 
@@ -130,34 +135,131 @@ float random(vec3 seed, int i)
 }
 
 
-vec3 CalcBumpedNormal()
+vec3 CalcBumpedNormal(in vec2 texCoord, out mat3 TBN)
 {
     vec3 Normal = normalize(normal_worldSpace);
     vec3 Tangent = normalize(tangent_worldSpace);
     Tangent = normalize(Tangent - dot(Tangent, Normal) * Normal);
     vec3 Bitangent = cross(Tangent, Normal);
-    vec3 BumpMapNormal = texture(normalMap, texCoordOut).rgb;
+    vec3 BumpMapNormal = texture(normalMap, texCoord).rgb;
     BumpMapNormal = 2.0 * BumpMapNormal - vec3(1.0, 1.0, 1.0);
     vec3 NewNormal;
-    mat3 TBN = mat3(Tangent, Bitangent, Normal);
+    TBN = mat3(Tangent, Bitangent, Normal);
     NewNormal = TBN * BumpMapNormal; // from tangent space to world space
     NewNormal = normalize(NewNormal);
     return NewNormal;
 }
+
+/*vec2 ParallaxMapping(in vec3 eyeDirection, in vec2 texCoords, out float parallaxHeight)
+{
+    // determine required number of layers
+       const float minLayers = 10;
+       const float maxLayers = 15;
+       float numLayers = mix(maxLayers, minLayers, abs(dot(vec3(0, 0, 1), eyeDirection)));
+
+       // height of each layer
+       float layerHeight = 1.0 / numLayers;
+       // depth of current layer
+       float currentLayerHeight = 0;
+       // shift of texture coordinates for each iteration
+       vec2 dtex = ParallaxScale * eyeDirection.xy / eyeDirection.z / numLayers;
+
+       // current texture coordinates
+       vec2 currentTextureCoords = texCoords;
+
+       // depth from heightmap
+//       float heightFromTexture;
+       float heightFromTexture = texture(heightMap, currentTextureCoords).r;
+
+       // while point is above surface
+       while(heightFromTexture > currentLayerHeight)
+       {
+          // go to the next layer
+          currentLayerHeight += layerHeight;
+          // shift texture coordinates along V
+          currentTextureCoords -= dtex;
+          // new depth from heightmap
+          heightFromTexture = texture(heightMap, currentTextureCoords).r;
+       }
+
+       ///////////////////////////////////////////////////////////
+       // Start of Relief Parallax Mapping
+
+       // decrease shift and height of layer by half
+       vec2 deltaTexCoord = dtex / 2;
+       float deltaHeight = layerHeight / 2;
+
+       // return to the mid point of previous layer
+       currentTextureCoords += deltaTexCoord;
+       currentLayerHeight -= deltaHeight;
+
+       // binary search to increase precision of Steep Paralax Mapping
+       const int numSearches = 5;
+       for(int i=0; i<numSearches; i++)
+       {
+          // decrease shift and height of layer by half
+          deltaTexCoord /= 2;
+          deltaHeight /= 2;
+
+          // new depth from heightmap
+          heightFromTexture = texture(heightMap, currentTextureCoords).r;
+
+          // shift along or agains vector V
+          if(heightFromTexture > currentLayerHeight) // below the surface
+          {
+             currentTextureCoords -= deltaTexCoord;
+             currentLayerHeight += deltaHeight;
+          }
+          else // above the surface
+          {
+             currentTextureCoords += deltaTexCoord;
+             currentLayerHeight -= deltaHeight;
+          }
+       }
+
+       // return results
+       parallaxHeight = currentLayerHeight;
+       return currentTextureCoords;
+} */
+
+vec2 ParallaxMapping(vec3 eyeDirection, vec2 texCoordOut)
+{
+    float height = texture(heightMap, texCoordOut).r;
+    vec2 p = eyeDirection.xy / eyeDirection.z * (height * ParallaxScale);
+    return texCoordOut + p;
+}
+
+/*
+float SelfShadowing()
+{
+
+} */
+
 
 void main()
 {
     float visibility=1.0;
 
 //    vec3 n = normalize(normal_worldSpace);
-//    mat3 TBN;
-    vec3 n = CalcBumpedNormal();
+    float parallaxHeight;
 
-    vec3 l = normalize(lightDirection_worldSpace);
+    mat3 TBN;
+
+    vec3 kal = CalcBumpedNormal(texCoordOut, TBN);
+
 
     vec3 v = normalize(eyeDirection_worldSpace);
 
+
+    vec2 newTexCoords = ParallaxMapping(v, texCoordOut);
+
+    vec3 n = CalcBumpedNormal(newTexCoords, TBN);
+
+    vec3 l = normalize(lightDirection_worldSpace);
+
+
     vec3 halfAngle = normalize(l + v);
+
 
     vec4 MaterialDiffuseColor = texture(colorMap, texCoordOut) * MaterialDiffuse;
 //    vec4 MaterialDiffuseColor = MaterialDiffuse;

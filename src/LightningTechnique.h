@@ -8,6 +8,7 @@
 #define COLOR_TEXTURE_UNIT GL_TEXTURE1
 #define NORMAL_TEXTURE_UNIT GL_TEXTURE2
 #define SKYBOX_TEXTURE_UNIT GL_TEXTURE3
+#define HEIGHT_TEXTURE_UNIT GL_TEXTURE4
 
 
 class LightningTechnique
@@ -55,8 +56,9 @@ public:
 		{
 			glDeleteFramebuffers(1, &m_FBO);
 		}
-		if (m_ShadowMap != 0){
-			glDeleteFramebuffers(1, &m_ShadowMap);
+		if (m_ShadowMap != 0)
+		{
+			glDeleteTextures(1, &m_ShadowMap);
 		}
 	}
 
@@ -66,7 +68,7 @@ public:
 		glGenFramebuffers(1, &m_FBO);
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_FBO);
 
-		//glViewport(0, 0, width, height);
+//		glViewport(0, 0, width, height);
 
 
 		// Создаем буфер глубины
@@ -219,13 +221,13 @@ public:
 		m_pColorTex->Load();
 	}
 
-	void Init(Shader const& shader)
+	virtual void Init(Shader const& shader)
 	{
 		m_NormalMapLocation = glGetUniformLocation(shader.Program(), "normalMap");
 		m_ColorMapLocation = glGetUniformLocation(shader.Program(), "colorMap");
 	}
 
-	void LoadTextures(Texture& normalTexture, Texture& colorTexture)
+	virtual void LoadTextures(Texture& normalTexture, Texture& colorTexture)
 	{
 		m_pNormalTex = &normalTexture;
 		m_pColorTex = &colorTexture;
@@ -233,7 +235,7 @@ public:
 		m_pColorTex->Load();
 	}
 
-	void BindTextures(Shader const& shader) const
+	virtual void BindTextures(Shader const& shader) const
 	{
 		shader.UseProgram();
 		m_pNormalTex->Bind(NORMAL_TEXTURE_UNIT);
@@ -242,15 +244,54 @@ public:
 		glUniform1i(m_ColorMapLocation, COLOR_TEXTURE_UNIT - GL_TEXTURE0);
 	}
 
-	void DoStuff(Shader const& shader, glm::mat4 const& model) const
+	virtual void DoStuff(Shader const& shader, glm::mat4 const& model) const
 	{
 		BindTextures(shader);
 	}
 
-	LightningTechnique* Clone()
+	virtual LightningTechnique* Clone()
 	{
 		return new NormalMapTechnique(*this);
 	}
+};
+
+class ParallaxTechnique: public NormalMapTechnique
+{
+	GLint m_HeightMapLocation;
+
+	Texture* m_pHeightTexture;
+
+public:
+	ParallaxTechnique(Texture& normalTexture, Texture& colorTexture, Texture& heightTexture):
+			NormalMapTechnique(normalTexture, colorTexture), m_pHeightTexture(&heightTexture)
+	{
+		m_pHeightTexture->Load();
+	}
+
+	void Init(Shader const& shader)
+	{
+		NormalMapTechnique::Init(shader);
+		m_HeightMapLocation = glGetUniformLocation(shader.Program(), "heightMap");
+	}
+
+	void BindTextures(Shader const& shader) const
+	{
+		NormalMapTechnique::BindTextures(shader);
+		m_pHeightTexture->Bind(HEIGHT_TEXTURE_UNIT);
+		glUniform1i(m_HeightMapLocation, HEIGHT_TEXTURE_UNIT - GL_TEXTURE0);
+	}
+
+	virtual void DoStuff(Shader const& shader, glm::mat4 const& model) const
+	{
+		BindTextures(shader);
+	}
+
+	virtual LightningTechnique* Clone()
+	{
+		return new ParallaxTechnique(*this);
+	}
+
+
 };
 
 #endif //LIGHTNINGTECHNIQUE_H

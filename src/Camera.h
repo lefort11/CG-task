@@ -2,8 +2,10 @@
 #define CAMERA_H
 
 
-#define  _USE_MATH_DEFINES
+#define  _USE_MATH_DEFINES //for windows
 #include "math.h"
+
+
 #include <cmath>
 
 #include <GL/glew.h>
@@ -17,6 +19,8 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+
+#include "Window.h"
 
 
 #define F_PI (float)M_PI
@@ -118,7 +122,7 @@ public:
 class OrbitalCamera: public Camera
 {
 
-private:
+protected:
 
 	float m_CameraRotationYaw = 0.0f;
 	float m_CameraRotationPitch = 0.0f;
