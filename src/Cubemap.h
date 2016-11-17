@@ -1,35 +1,5 @@
-#ifndef ENGINE_H
-#define ENGINE_H
-
-#include <cmath>
-
-#include <GL/glew.h>
-
-#include <glm/glm.hpp>
-#include <glm/gtx/transform.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/euler_angles.hpp>
-
-#include <string>
-#include <iostream>
-#include <fstream>
-#include <vector>
-
-#include <freeimage.h>
-
-#include "Window.h"
-#include "Camera.h"
-#include "Shader.h"
-#include "LightningTechnique.h"
-#include "GraphicalObject.h"
-
-
-#include "Vertex.h"
-
-#include "TangentSpace.h"
-#include "Texture.h"
-
-
+#ifndef CUBEMAP_H
+#define CUBEMAP_H
 
 class CubemapTexture
 {
@@ -155,7 +125,7 @@ public:
 		glCullFace((GLenum)OldCullFaceMode);
 		glDepthFunc((GLenum)OldDepthFuncMode);
 
-	//	glDisable(GL_CULL_FACE);
+		//	glDisable(GL_CULL_FACE);
 		glDepthMask(GL_TRUE);
 
 	}
@@ -163,6 +133,4 @@ public:
 };
 
 
-
-
-#endif //ENGINE_H
+#endif //MASHGRAPH_CUBEMAP_H

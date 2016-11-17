@@ -9,6 +9,8 @@ struct Vertex
 	glm::vec2 m_TexCoords;
 
 	glm::vec3 m_Tangent;
+
+//	glm::vec3 m_Bitangent;
 };
 
 

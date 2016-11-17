@@ -137,16 +137,21 @@ float random(vec3 seed, int i)
 }
 
 
-vec3 CalcBumpedNormal(in vec2 texCoord)
+mat3 CalcTBN(vec3 tangent_world, vec3 normal_world)
 {
-    vec3 Normal = normalize(normal_worldSpace);
-    vec3 Tangent = normalize(tangent_worldSpace);
-    Tangent = normalize(Tangent - dot(Tangent, Normal) * Normal);
-    vec3 Bitangent = normalize(cross(Tangent, Normal));
+    vec3 T = normalize(tangent_world);
+    vec3 N = normalize(normal_world);
+//        T = normalize(T - dot(T, N) * N); // ??
+    vec3 B = normalize(cross(T, N));
+    return mat3(T, B, N);
+
+}
+
+vec3 CalcBumpedNormal(vec2 texCoord, mat3 TBN)
+{
     vec3 BumpMapNormal = texture(normalMap, texCoord).rgb;
     BumpMapNormal = 2.0 * BumpMapNormal - vec3(1.0, 1.0, 1.0);
     vec3 NewNormal;
-    mat3 TBN = mat3(Tangent, Bitangent, Normal);
     NewNormal = TBN * BumpMapNormal; // from tangent space to world space
     NewNormal = normalize(NewNormal);
     return NewNormal;
@@ -165,7 +170,7 @@ vec2 ParallaxMapping(in vec3 eyeDirection, in vec2 texCoords, out float parallax
        float currentLayerHeight = 0;
        // shift of texture coordinates for each iteration
        vec2 dtex = ParallaxScale *
-                    vec2(eyeDirection.x / eyeDirection.z / numLayers, -eyeDirection.y / eyeDirection.z / numLayers);
+                    vec2(eyeDirection.x, eyeDirection.y) / eyeDirection.z / numLayers;
 
        // current texture coordinates
        vec2 currentTextureCoords = texCoords;
@@ -291,19 +296,14 @@ void main()
 //    vec3 n = normalize(normal_worldSpace);
     float parallaxHeight;
 
-
-    vec3 kal = CalcBumpedNormal(texCoordOut);
-
-
     vec3 v = normalize(eyeDirection_worldSpace);
+    mat3 TBN = CalcTBN(tangent_worldSpace, normal_worldSpace);
 
+    vec2 newTexCoords = ParallaxMapping(normalize(transpose(TBN)* v), texCoordOut, parallaxHeight);
 
-    vec2 newTexCoords = ParallaxMapping(v, texCoordOut, parallaxHeight);
-
-    vec3 n = CalcBumpedNormal(newTexCoords);
+    vec3 n = CalcBumpedNormal(newTexCoords, TBN);
 
     vec3 l = normalize(lightDirection_worldSpace);
-
 
     vec3 halfAngle = normalize(l + v);
 
@@ -323,7 +323,7 @@ void main()
         (1.0 - texture(shadowMap, vec3(ShadowCoord.xy + poissonDisk[i]/650.0,  (ShadowCoord.z-bias)/ShadowCoord.w) ));
     }
 
-    float shadowMultiplier = SelfShadowing(l, newTexCoords, parallaxHeight - 0.05);
+    float shadowMultiplier = SelfShadowing(normalize(transpose(TBN) * l), newTexCoords, parallaxHeight - 0.05);
 
     color = (shadowMultiplier * visibility *
     GetBlinnReflection( MaterialDiffuseColor,

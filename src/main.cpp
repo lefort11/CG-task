@@ -7,18 +7,11 @@
 
 
 #include "Window.h"
-#include "Engine.h"
+#include "Scene.h"
 
 #define WIDTH 800
 #define  HEIGHT 800
 
-Vertex planeVertices[] =
-		{
-				{glm::vec3(10.0f, -0.5f, 10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1,1}},
-				{glm::vec3(-10.0f, -0.5f, 10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0,1}},
-				{glm::vec3(-10.0f, -0.5f, -10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0,0}},
-				{glm::vec3(10.0f, -0.5f, -10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1,0}}
-		};
 
 
 
@@ -129,6 +122,14 @@ int main(int argc, char* argv[])
 	window.Initialize();
 
 	OrbitalCamera camera(WIDTH, HEIGHT);
+	Vertex planeVertices[] =
+			{
+					{glm::vec3(10.0f, -0.5f, 10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1,1}},
+					{glm::vec3(-10.0f, -0.5f, 10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0,1}},
+					{glm::vec3(-10.0f, -0.5f, -10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0,0}},
+					{glm::vec3(10.0f, -0.5f, -10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1,0}}
+			};
+
 
 	CalculateTangentSpace(planeVertices, sizeof(planeVertices)/sizeof(planeVertices[0]), planeIndices,
 			sizeof(planeIndices)/sizeof(planeIndices[0]));
@@ -147,7 +148,7 @@ int main(int argc, char* argv[])
 	GraphicalObject cube2(cube_vertices, sizeof(cube_vertices)/sizeof(cube_vertices[0]),
 						 cube_indices, sizeof(cube_indices)/sizeof(cube_indices[0]), glm::vec3(1.0f, 1.0f, 0.0f));
 	GraphicalObject cube3(cube_vertices2, sizeof(cube_vertices2)/sizeof(cube_vertices[2]),
-						  cube_indices, sizeof(cube_indices)/sizeof(cube_indices[0]), glm::vec3(1.0f, 1.0f, -5.0f));
+						  cube_indices, sizeof(cube_indices)/sizeof(cube_indices[0]), glm::vec3(3.0f, 1.0f, -5.0f));
 	GraphicalObject plane(planeVertices, 4, planeIndices, 6, {0.0f, 0.0f, 0.0f});
 
 
@@ -273,6 +274,8 @@ int main(int argc, char* argv[])
 
 		cube2.LoadShader(cubemapReflectionShader);
 		cube2.Draw(camera);
+
+// 		cube.Rotate(glm::vec3(glfwGetTime(), glfwGetTime(), glfwGetTime()));
 
 
 		camera.Update(window);

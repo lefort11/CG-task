@@ -18,34 +18,32 @@ void CalculateTangentSpace(Vertex* vertices, unsigned verticesNumber, GLuint con
 		Vertex& v1 = vertices[indices[i+1]];
 		Vertex& v2 = vertices[indices[i+2]];
 
-		glm::vec3 Edge1 = v1.m_Position - v0.m_Position;
-		glm::vec3 Edge2 = v2.m_Position - v0.m_Position;
+		auto const deltaPos1 = v1.m_Position - v0.m_Position;
+		auto const deltaPos2 = v2.m_Position - v0.m_Position;
 
-		float DeltaU1 = v1.m_TexCoords.x - v0.m_TexCoords.x;
-		float DeltaV1 = v1.m_TexCoords.y - v0.m_TexCoords.y;
-		float DeltaU2 = v2.m_TexCoords.x - v0.m_TexCoords.x;
-		float DeltaV2 = v2.m_TexCoords.y - v0.m_TexCoords.y;
+		auto const deltaUV1 = v1.m_TexCoords - v0.m_TexCoords;
+		auto const deltaUV2 = v2.m_TexCoords - v0.m_TexCoords;
 
-		float f = 1.0f / (DeltaU1 * DeltaV2 - DeltaU2 * DeltaV1);
+		auto const r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
 
-		glm::vec3 Tangent, Bitangent;
+		auto const Tangent = (deltaPos1 * deltaUV2.y   - deltaPos2 * deltaUV1.y)*r;
+		auto const Bitangent = (deltaPos2 * deltaUV1.x   - deltaPos1 * deltaUV2.x)*r;
 
-		Tangent.x = f * (DeltaV2 * Edge1.x - DeltaV1 * Edge2.x);
-		Tangent.y = f * (DeltaV2 * Edge1.y - DeltaV1 * Edge2.y);
-		Tangent.z = f * (DeltaV2 * Edge1.z - DeltaV1 * Edge2.z);
-
-		Bitangent.x = f * (-DeltaU2 * Edge1.x - DeltaU1 * Edge2.x);
-		Bitangent.y = f * (-DeltaU2 * Edge1.y - DeltaU1 * Edge2.y);
-		Bitangent.z = f * (-DeltaU2 * Edge1.z - DeltaU1 * Edge2.z);
 
 		v0.m_Tangent += Tangent;
 		v1.m_Tangent += Tangent;
 		v2.m_Tangent += Tangent;
+
+//		v0.m_Bitangent +=Bitangent;
+//		v1.m_Bitangent += Bitangent;
+//		v2.m_Bitangent += Bitangent;
 	}
 
 	for (unsigned int i = 0 ; i < verticesNumber ; i++)
 	{
 		vertices[i].m_Tangent = glm::normalize(vertices[i].m_Tangent);
+//		vertices[i].m_Bitangent = glm::normalize(vertices[i].m_Bitangent);
+
 	}
 }
 

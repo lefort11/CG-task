@@ -151,9 +151,7 @@ void main()
 
 
     color = (visibility *
-    GetBlinnReflection(//MaterialAmbient,
-                        //LightAmbient,
-                        MaterialDiffuse,
+    GetBlinnReflection( MaterialDiffuse,
                         MaterialSpecular,
                         Shininess,
                         n,

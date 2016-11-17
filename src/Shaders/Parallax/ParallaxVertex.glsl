@@ -47,17 +47,11 @@ void main()
 
         fragmentColor = vec4(vertexColor, 1.0);
 
-        tangent_worldSpace = (model * vec4(vertexTangent, 1.0)).xyz;
+        tangent_worldSpace = (inverse(transpose(model)) * vec4(vertexTangent, 1.0)).xyz; //!!!!!!!!
+
+
 
         texCoordOut = texCoord;
-/*        vec3 T = normalize(tangent_worldSpace);
-        vec3 N = normalize(model * vec4(vertexNormal_modelSpace, 1)).xyz;
-        T = normalize(T - dot(T, N) * N);
-        vec3 B = normalize(cross(T, N));
-
-        invTBN = transpose(mat3(T, B, N)); */
-
-
 
 
 

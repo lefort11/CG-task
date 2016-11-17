@@ -6,11 +6,12 @@
       <sourceFolder url="file://$MODULE_DIR$/src/Vertex.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/TangentSpace.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/Cubemap.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/LightningTechnique.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/Texture.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/Window.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/Shader.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/Engine.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/Scene.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/Camera.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
     </content>

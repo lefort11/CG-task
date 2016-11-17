@@ -52,9 +52,6 @@ public:
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesNumber * sizeof(GLuint), indices, GL_STATIC_DRAW);
 
 
-		//calculating tangents
-
-
 		glBindVertexArray(0);
 
 	}
@@ -94,6 +91,10 @@ public:
 		glEnableVertexAttribArray(4);
 		glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, m_Tangent));
 
+		//Bitangent
+//		glEnableVertexAttribArray(5);
+//		glVertexAttribPointer(5, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, m_Bitangent));
+
 		//indices
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ElementBuffer);
 
@@ -106,6 +107,7 @@ public:
 		glDisableVertexAttribArray(2);
 		glDisableVertexAttribArray(3);
 		glDisableVertexAttribArray(4);
+//		glDisableVertexAttribArray(5);
 
 		glBindVertexArray(0);
 
@@ -140,7 +142,7 @@ class GraphicalObject
 {
 	Mesh m_Mesh;
 	glm::vec3 m_CenterOffset;
-	glm::vec3 m_Rotate;
+	glm::vec3 m_Rotatation;
 	glm::vec3 m_Scale;
 
 	Shader* m_pShader;
@@ -171,7 +173,7 @@ public:
 					unsigned const indicesNumber, glm::vec3 const& offset, glm::vec3 const& rotate = glm::vec3(0.0f),
 					glm::vec3 scale = glm::vec3(1.0f)):
 			m_Mesh(vertices,  verticesNumber, indices, indicesNumber),
-			m_CenterOffset(offset), m_Rotate(rotate), m_Scale(scale)
+			m_CenterOffset(offset), m_Rotatation(rotate), m_Scale(scale)
 	{}
 
 	void LoadLightningTechniques(std::vector<LightningTechnique*> lightningTechniques)
@@ -190,6 +192,12 @@ public:
 		{
 			m_LightningTechniques[i]->Init(*m_pShader);
 		}
+	}
+
+
+	void Rotate(glm::vec3 rotation)
+	{
+		m_Rotatation = rotation;
 	}
 
 
@@ -234,7 +242,7 @@ public:
 
 
 		glm::mat4 mvp;
-		glm::mat4 model = glm::translate(m_CenterOffset) * glm::toMat4(glm::quat(m_Rotate)) * glm::scale(m_Scale);
+		glm::mat4 model = glm::translate(m_CenterOffset) * glm::toMat4(glm::quat(m_Rotatation)) * glm::scale(m_Scale);
 		camera.GetMVP(mvp, model);
 
 
@@ -249,8 +257,6 @@ public:
 
 		glUniformMatrix4fv(viewID, 1, GL_FALSE, &view[0][0]);
 
-
-
 		m_Mesh.Draw();
 
 		glUseProgram(0);
@@ -262,7 +268,7 @@ public:
 		m_pShader->UseProgram();
 
 		glm::mat4 mvp;
-		glm::mat4 model = glm::translate(m_CenterOffset) * glm::toMat4(glm::quat(m_Rotate)) * glm::scale(m_Scale);
+		glm::mat4 model = glm::translate(m_CenterOffset) * glm::toMat4(glm::quat(m_Rotatation)) * glm::scale(m_Scale);
 		camera.GetMVP(mvp, model);
 
 		glm::mat4 view;
@@ -310,7 +316,7 @@ public:
 
 	void GetModelMatrix(glm::mat4& model) const
 	{
-		model = glm::translate(m_CenterOffset);
+		model = glm::translate(m_CenterOffset) * glm::toMat4(glm::quat(m_Rotatation)) * glm::scale(m_Scale);
 	}
 
 

@@ -45,7 +45,7 @@ void main()
 
         fragmentColor = vec4(vertexColor, 1.0);
 
-        tangent_worldSpace = (model * vec4(vertexTangent, 1.0)).xyz;
+        tangent_worldSpace = (inverse(transpose(model)) * vec4(vertexTangent, 1.0)).xyz;
 
         texCoordOut = texCoord;
 

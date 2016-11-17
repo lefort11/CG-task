@@ -153,7 +153,7 @@ public:
 		m_LightBiasMVPID = glGetUniformLocation(shader.Program(), "lightBiasMVP");
 	}
 
-	void LoadLightBiasMVP(Shader const& shader, glm::mat4 model) const
+	void LoadLightBiasMVP(Shader const& shader, glm::mat4 const& model) const
 	{
 		shader.UseProgram();
 		glm::mat4 mvp;
