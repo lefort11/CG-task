@@ -1,0 +1,28 @@
+/Applications/CLion.app/Contents/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /Users/Gleb/Desktop/mashgraph
+-- The C compiler identification is AppleClang 8.0.0.8000042
+-- The CXX compiler identification is AppleClang 8.0.0.8000042
+-- Check for working C compiler: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc
+-- Check for working C compiler: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc -- works
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Check for working CXX compiler: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++
+-- Check for working CXX compiler: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ -- works
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found OpenGL: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk/System/Library/Frameworks/OpenGL.framework  
+-- Found PkgConfig: /usr/local/bin/pkg-config (found version "0.29.1") 
+*** freeglut inlclude is found!
+*** freeglut lib is found!
+-- Found GLEW: /usr/local/include  
+*** Glew inlclude is found!
+*** Glew lib is found!
+-- Checking for one of the modules 'glfw3'
+*** FreeImage inlclude is found!
+*** FreeImage lib is found!
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /Users/Gleb/Desktop/mashgraph/cmake-build-debug

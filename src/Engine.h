@@ -20,7 +20,7 @@
 #include "Window.h"
 #include "Camera.h"
 #include "Shader.h"
-#include "LightningTechnique.h"
+#include "LightingTechnique.h"
 #include "GraphicalObject.h"
 #include "Cubemap.h"
 
@@ -28,9 +28,6 @@
 
 #include "TangentSpace.h"
 #include "Texture.h"
-
-
-
 
 
 

@@ -24,6 +24,8 @@ uniform sampler2DShadow shadowMap;
 uniform vec4 LightDiffuse = vec4(1.0,1.0,1.0,1.0);
 uniform vec4 LightAmbient = vec4(0.2,0.2,0.2,1.0);
 
+uniform bool SoftShadows;
+
 
 
 out vec4 color;
@@ -168,11 +170,17 @@ void main()
 
     float bias = 0;
 
-    for(int i = 0; i < 4; ++i)
+
+    if(SoftShadows)
     {
-        visibility -= 0.2*
-        (1.0 - texture(shadowMap, vec3(ShadowCoord.xy + poissonDisk[i]/650.0,  (ShadowCoord.z-bias)/ShadowCoord.w) ));
+        for(int i = 0; i < 4; ++i)
+        {
+            visibility -= 0.2*
+            (1.0 - texture(shadowMap, vec3(ShadowCoord.xy + poissonDisk[i]/650.0,  (ShadowCoord.z-bias)/ShadowCoord.w) ));
+        }
     }
+    else
+        visibility = texture(shadowMap, vec3(ShadowCoord.xy, (ShadowCoord.z - bias)/ShadowCoord.w));
 
     color = (visibility *
     GetBlinnReflection( MaterialDiffuseColor,

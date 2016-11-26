@@ -3,6 +3,7 @@
 
 #include "Shader.h"
 #include "Texture.h"
+#include "FBO.h"
 
 #define SHADOW_TEXTURE_UNIT GL_TEXTURE0
 #define COLOR_TEXTURE_UNIT GL_TEXTURE1
@@ -11,117 +12,40 @@
 #define HEIGHT_TEXTURE_UNIT GL_TEXTURE4
 
 
-class LightningTechnique
+class LightingTechnique
 {
 public:
 
-	LightningTechnique() {}
+	LightingTechnique() {}
 
-	LightningTechnique(LightningTechnique const& other) {}
+	LightingTechnique(LightingTechnique const& other) {}
 
 	virtual void Init(Shader const& shader) = 0;
 
 	virtual void DoStuff(Shader const& shader, glm::mat4 const& model) const = 0;
 
-	virtual LightningTechnique* Clone() = 0;
-
-//	virtual void DoStuff(Shader const& shader) = 0;
+	virtual LightingTechnique* Clone() = 0;
 
 
 };
 
 
-class ShadowMapFBO
+class ShadowMapFBO: public FBO
 {
-	GLuint m_FBO;
-	GLuint m_ShadowMap;
-
 public:
 
-	ShadowMapFBO()
+	void Init(int width, int height)
 	{
-		m_FBO = 0;
-		m_ShadowMap = 0;
+		FBO::Init(width, height, true, GL_NONE);
 	}
 
-	ShadowMapFBO(ShadowMapFBO const& other)
-	{
-		m_FBO = other.m_FBO;
-		m_ShadowMap = other.m_ShadowMap;
-	}
-
-	~ShadowMapFBO()
-	{
-		if(m_FBO != 0)
-		{
-			glDeleteFramebuffers(1, &m_FBO);
-		}
-		if (m_ShadowMap != 0)
-		{
-			glDeleteTextures(1, &m_ShadowMap);
-		}
-	}
-
-	bool Init(int width, int height)
-	{
-		// Создаем FBO
-		glGenFramebuffers(1, &m_FBO);
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_FBO);
-
-//		glViewport(0, 0, width, height);
-
-
-		// Создаем буфер глубины
-		glGenTextures(1, &m_ShadowMap);
-		glBindTexture(GL_TEXTURE_2D, m_ShadowMap);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, width, height, 0,GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
-
-/*		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE); */
-
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_ShadowMap, 0);
-
-		// Отключаем запись в буфер цвета
-		glDrawBuffer(GL_NONE);
-
-		GLenum Status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-
-		if (Status != GL_FRAMEBUFFER_COMPLETE){
-			printf("FB error, status: 0x%x\n", Status);
-			return false;
-		}
-
-		return true;
-	}
-
-
-	void BindForWriting()
-	{
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_FBO);
-	}
-
-	void BindForReading(GLenum TextureUnit)
-	{
-		glActiveTexture(TextureUnit);
-		glBindTexture(GL_TEXTURE_2D, m_ShadowMap);
-	}
 };
 
 
-class ShadowMapTechnique: public LightningTechnique
+class ShadowMapTechnique: public LightingTechnique
 {
 public:
-	GLint m_TextureLocation;
+	GLint m_TextureID;
 
 	GLint m_LightBiasMVPID;
 
@@ -133,7 +57,7 @@ public:
 public:
 	ShadowMapTechnique(ShadowMapFBO* pShadowMap, ShadowCamera* pShadowCamera)
 	{
-		m_TextureLocation = -1;
+		m_TextureID = -1;
 		m_LightBiasMVPID = -1;
 		m_pShadowMapFBO = pShadowMap;
 		m_pShadowCamera = pShadowCamera;
@@ -141,7 +65,7 @@ public:
 
 /*	ShadowMapTechnique(ShadowMapTechnique const& other)
 	{
-		m_TextureLocation = other.m_TextureLocation;
+		m_TextureID = other.m_TextureID;
 		m_LightBiasMVPID = other.m_LightBiasMVPID;
 		m_pShadowCamera = new ShadowCamera(*(other.m_pShadowCamera));
 		m_pShadowMapFBO = new ShadowMapFBO(*(other.m_pShadowMapFBO));
@@ -149,8 +73,9 @@ public:
 	} */
 	void Init(Shader const& shader)
 	{
-		m_TextureLocation = glGetUniformLocation(shader.Program(),"shadowMap");
+		m_TextureID = glGetUniformLocation(shader.Program(),"shadowMap");
 		m_LightBiasMVPID = glGetUniformLocation(shader.Program(), "lightBiasMVP");
+
 	}
 
 	void LoadLightBiasMVP(Shader const& shader, glm::mat4 const& model) const
@@ -185,16 +110,17 @@ public:
 
 	void SetTextureUnit(GLint textureUnit) const
 	{
-		glUniform1i(m_TextureLocation, textureUnit);
+		glUniform1i(m_TextureID, textureUnit);
 	}
 
 	void DoStuff(Shader const& shader, glm::mat4 const& model) const
 	{
 		LoadLightBiasMVP(shader, model);
 		ReadShadowTexture(SHADOW_TEXTURE_UNIT, shader);
+
 	}
 
-	LightningTechnique* Clone()
+	LightingTechnique* Clone()
 	{
 		return new ShadowMapTechnique(*this);
 	}
@@ -202,7 +128,7 @@ public:
 
 };
 
-class NormalMapTechnique: public LightningTechnique
+class NormalMapTechnique: public LightingTechnique
 {
 	GLint m_NormalMapLocation;
 	GLint m_ColorMapLocation;
@@ -249,7 +175,7 @@ public:
 		BindTextures(shader);
 	}
 
-	virtual LightningTechnique* Clone()
+	virtual LightingTechnique* Clone()
 	{
 		return new NormalMapTechnique(*this);
 	}
@@ -286,7 +212,7 @@ public:
 		BindTextures(shader);
 	}
 
-	virtual LightningTechnique* Clone()
+	virtual LightingTechnique* Clone()
 	{
 		return new ParallaxTechnique(*this);
 	}

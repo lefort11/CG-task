@@ -19,7 +19,7 @@
 #include "Vertex.h"
 #include "Shader.h"
 #include "Camera.h"
-#include "LightningTechnique.h"
+#include "LightingTechnique.h"
 
 class Mesh
 {
@@ -122,6 +122,8 @@ struct Material
 	glm::vec4 Diffuse;
 	float Shininess;
 
+	std::vector<LightingTechnique*> m_LightningTechniques;
+
 public:
 
 	Material(glm::vec4 specular = glm::vec4(0.9,0.9,0.9,1.0),
@@ -133,6 +135,35 @@ public:
 			Diffuse(diffuse),
 			Shininess(shininess)
 	{}
+
+
+	void LoadLightningTechniques(std::vector<LightingTechnique*> lightningTechniques)
+	{
+		m_LightningTechniques = lightningTechniques;
+	}
+
+	void AddLightningTechnique(LightingTechnique& lightningTechnique)
+	{
+		m_LightningTechniques.push_back(lightningTechnique.Clone());
+	}
+
+	void InitLightningTechniques(Shader const& shader)
+	{
+		for(int i = 0; i < m_LightningTechniques.size(); ++i)
+		{
+			m_LightningTechniques[i]->Init(shader);
+		}
+	}
+
+	void DoStuff(Shader const& shader, glm::mat4 const& model)
+	{
+		for(int i = 0; i < m_LightningTechniques.size(); ++i)
+		{
+			m_LightningTechniques[i]->DoStuff(shader, model);
+		}
+	}
+
+
 
 };
 
@@ -165,7 +196,6 @@ class GraphicalObject
 	GLint MaterialDiffuseID;
 	GLint MaterialShininessID;
 
-	std::vector<LightningTechnique*> m_LightningTechniques;
 
 
 public:
@@ -176,30 +206,11 @@ public:
 			m_CenterOffset(offset), m_Rotatation(rotate), m_Scale(scale)
 	{}
 
-	void LoadLightningTechniques(std::vector<LightningTechnique*> lightningTechniques)
-	{
-		m_LightningTechniques = lightningTechniques;
-	}
-
-	void AddLightningTechnique(LightningTechnique& lightningTechnique)
-	{
-		m_LightningTechniques.push_back(lightningTechnique.Clone());
-	}
-
-	void InitLightningTechniques()
-	{
-		for(int i = 0; i < m_LightningTechniques.size(); ++i)
-		{
-			m_LightningTechniques[i]->Init(*m_pShader);
-		}
-	}
-
 
 	void Rotate(glm::vec3 rotation)
 	{
 		m_Rotatation = rotation;
 	}
-
 
 
 	~GraphicalObject()
@@ -232,6 +243,8 @@ public:
 		MaterialDiffuseID = glGetUniformLocation(m_pShader->Program(), "MaterialDiffuse");
 		MaterialSpecularID = glGetUniformLocation(m_pShader->Program(), "MaterialSpecular");
 		MaterialShininessID = glGetUniformLocation(m_pShader->Program(), "Shininess");
+		m_pMaterial->InitLightningTechniques(*m_pShader);
+
 	}
 
 
@@ -298,10 +311,7 @@ public:
 
 		glUniformMatrix4fv(lightViewID, 1, GL_FALSE, &lightViewMat[0][0]);
 
-		for(int i = 0; i < m_LightningTechniques.size(); ++i)
-		{
-			m_LightningTechniques[i]->DoStuff(*m_pShader, model);
-		}
+		m_pMaterial->DoStuff(*m_pShader, model);
 
 		m_Mesh.Draw();
 

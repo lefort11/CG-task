@@ -7,12 +7,10 @@
 
 
 #include "Window.h"
-#include "Scene.h"
+#include "Engine.h"
 
 #define WIDTH 800
 #define  HEIGHT 800
-
-
 
 
 GLuint const planeIndices[] =
@@ -111,8 +109,18 @@ GLuint cube_indices[] =
 		};
 
 
+Vertex planeVertices[] =
+		{
+				{glm::vec3(10.0f, -0.5f, 10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1,1}},
+				{glm::vec3(-10.0f, -0.5f, 10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0,1}},
+				{glm::vec3(-10.0f, -0.5f, -10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0,0}},
+				{glm::vec3(10.0f, -0.5f, -10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1,0}}
+		};
+
+
 
 glm::vec3 lightDirection = glm::vec3(0.5f, -0.5f, -1.0f);
+
 
 
 int main(int argc, char* argv[])
@@ -121,14 +129,8 @@ int main(int argc, char* argv[])
 	Window window(WIDTH, HEIGHT, "Scene");
 	window.Initialize();
 
+
 	OrbitalCamera camera(WIDTH, HEIGHT);
-	Vertex planeVertices[] =
-			{
-					{glm::vec3(10.0f, -0.5f, 10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1,1}},
-					{glm::vec3(-10.0f, -0.5f, 10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0,1}},
-					{glm::vec3(-10.0f, -0.5f, -10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0,0}},
-					{glm::vec3(10.0f, -0.5f, -10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1,0}}
-			};
 
 
 	CalculateTangentSpace(planeVertices, sizeof(planeVertices)/sizeof(planeVertices[0]), planeIndices,
@@ -163,6 +165,8 @@ int main(int argc, char* argv[])
 	shadowShader.Load("../src/Shaders/ShadowShaders/ShadowLightVertex.glsl",
 					  "../src/Shaders/ShadowShaders/ShadowLightFragment.glsl");
 
+
+
 	normalMapShader.Load("../src/Shaders/NormalMapShaders/NormalVertex.glsl",
 						 "../src/Shaders/NormalMapShaders/NormalFragment.glsl");
 
@@ -170,26 +174,12 @@ int main(int argc, char* argv[])
 						   "../src/Shaders/Parallax/ParallaxFragment.glsl");
 
 
+	// !!!! ATTENTION !!!!!
+	bool SoftShadows = true;
+	GLint SoftShadowsSSID = glGetUniformLocation(shadowShader.Program(), "SoftShadows");
+	GLint SoftShadowNMID = glGetUniformLocation(normalMapShader.Program(), "SoftShadows");
+	// !!!! !!!!!!!! !!!!!!
 
-	Material material;
-	Material material1;
-	material1.Shininess = 100.0f;
-
-	cube.LoadShader(shadowShader);
-	cube2.LoadShader(cubemapReflectionShader);
-	skybox.LoadShader(skyboxShader);
-
-	plane.LoadShader(normalMapShader);
-
-	plane2.LoadShader(parallaxMapShader);
-
-	cube3.LoadShader(shadowShader);
-
-	cube.LoadMaterial(material);
-	cube2.LoadMaterial(material);
-	plane.LoadMaterial(material1);
-	cube3.LoadMaterial(material);
-	plane2.LoadMaterial(material1);
 
 	ShadowCamera shadowCamera(WIDTH, HEIGHT, glm::vec3(0.0f, 0.0f, 0.0f) - lightDirection, {0.0f,0.0f,0.0f});
 
@@ -214,34 +204,50 @@ int main(int argc, char* argv[])
 	Texture colorTex2(GL_TEXTURE_2D, "../bricks/bricks2.jpg");
 	Texture heightTex(GL_TEXTURE_2D, "../bricks/bricks2_disp.jpg");
 
-/*	Texture normalTex2(GL_TEXTURE_2D, "../parallax map/7.jpg");
-	Texture colorTex2(GL_TEXTURE_2D, "../parallax map/6.jpg");
-	Texture heightTex(GL_TEXTURE_2D, "../parallax map/5.jpg"); */
 
-	//initializing shadowmap technique
+	//initializing Lightning technique
 	ShadowMapTechnique shadowMapTechnique(&shadowMapFBO, &shadowCamera);
 
 	NormalMapTechnique normalMapTechnique(normalTex, colorTex);
 
 	ParallaxTechnique parallaxTechnique(normalTex2, colorTex2, heightTex);
 
-	cube.AddLightningTechnique(shadowMapTechnique);
-	cube3.AddLightningTechnique(shadowMapTechnique);
-	plane.AddLightningTechnique(shadowMapTechnique);
-	plane.AddLightningTechnique(normalMapTechnique);
+	Material material0;
 
-	plane2.AddLightningTechnique(shadowMapTechnique);
-	plane2.AddLightningTechnique(parallaxTechnique);
+	Material material;
+	material.AddLightningTechnique(shadowMapTechnique);
 
-	plane.InitLightningTechniques();
-	cube.InitLightningTechniques();
-	cube3.InitLightningTechniques();
-	plane2.InitLightningTechniques();
+	Material material1;
+	material1.Shininess = 100.0f;
+	material1.AddLightningTechnique(shadowMapTechnique);
+	material1.AddLightningTechnique(normalMapTechnique);
 
+	Material material2;
+	material2.Shininess = 100.0f;
+	material2.AddLightningTechnique(shadowMapTechnique);
+	material2.AddLightningTechnique(parallaxTechnique);
+
+	cube.LoadShader(shadowShader);
+	cube2.LoadShader(cubemapReflectionShader);
+	skybox.LoadShader(skyboxShader);
+
+	plane.LoadShader(normalMapShader);
+
+	plane2.LoadShader(parallaxMapShader);
+
+	cube3.LoadShader(shadowShader);
+
+	cube.LoadMaterial(material);
+	cube2.LoadMaterial(material0);
+	plane.LoadMaterial(material1);
+	cube3.LoadMaterial(material);
+	plane2.LoadMaterial(material2);
 
 
 	do
 	{
+
+
 
 		//ShadowMap pass
 		glCullFace(GL_FRONT);
@@ -280,6 +286,14 @@ int main(int argc, char* argv[])
 
 		camera.Update(window);
 //		shadowCamera.Update(window);
+
+		// !!!!!!!
+		shadowShader.UseProgram();
+		SoftShadows = (glfwGetKey(window.GetGLFWPtr(), GLFW_KEY_Q) != GLFW_PRESS);
+		glUniform1i(SoftShadowsSSID, SoftShadows);
+		normalMapShader.UseProgram();
+		glUniform1i(SoftShadowNMID, SoftShadows);
+		//!!!!!!!!
 
 		glfwSwapBuffers(window.GetGLFWPtr());
 		glfwPollEvents();
