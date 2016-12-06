@@ -10,7 +10,9 @@
 #define NORMAL_TEXTURE_UNIT GL_TEXTURE2
 #define SKYBOX_TEXTURE_UNIT GL_TEXTURE3
 #define HEIGHT_TEXTURE_UNIT GL_TEXTURE4
-
+#define POSITION_TEXTURE_UNIT GL_TEXTURE5
+#define INPUT_TEXTURE_UNIT GL_TEXTURE6
+#define AO_TEXTURE_UNIT GL_TEXTURE7
 
 class LightingTechnique
 {
@@ -44,7 +46,7 @@ public:
 
 class ShadowMapTechnique: public LightingTechnique
 {
-public:
+
 	GLint m_TextureID;
 
 	GLint m_LightBiasMVPID;

@@ -200,7 +200,7 @@ class GraphicalObject
 
 public:
 	GraphicalObject(Vertex const* vertices, unsigned const verticesNumber, GLuint const* indices,
-					unsigned const indicesNumber, glm::vec3 const& offset, glm::vec3 const& rotate = glm::vec3(0.0f),
+					unsigned const indicesNumber, glm::vec3 const& offset = {}, glm::vec3 const& rotate = glm::vec3(0.0f),
 					glm::vec3 scale = glm::vec3(1.0f)):
 			m_Mesh(vertices,  verticesNumber, indices, indicesNumber),
 			m_CenterOffset(offset), m_Rotatation(rotate), m_Scale(scale)
@@ -215,7 +215,7 @@ public:
 
 	~GraphicalObject()
 	{
-		DeleteShader();
+
 	}
 
 	void LoadShader(Shader& shader)

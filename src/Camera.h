@@ -56,6 +56,8 @@ public:
 
 
 
+
+
 	virtual void Update(Window& window)
 	{
 
@@ -76,6 +78,11 @@ public:
 	void GetMVP(glm::mat4 &mvp, glm::mat4 const &model) const
 	{
 		mvp = m_Projection * m_View * model;
+	}
+
+	void GetProjection(glm::mat4& proj) const
+	{
+		proj = m_Projection;
 	}
 
 
@@ -109,9 +116,6 @@ public:
 			m_Width = currentWidth;
 			m_Height = currentHeight;
 
-			//m_Projection = glm::perspectiveFovRH(glm::radians(90.0f), float(m_Width), float(m_Height), 0.1f, 100.0f);
-
-			m_Projection =  glm::ortho<float>(-10,10,-10,10,-10,20);
 
 			glViewport ( 0, 0, (GLsizei)m_Width, (GLsizei)m_Height );
 		}

@@ -9,8 +9,8 @@
 #include "Window.h"
 #include "Engine.h"
 
-#define WIDTH 800
-#define  HEIGHT 800
+#define WIDTH 600
+#define  HEIGHT 600
 
 
 GLuint const planeIndices[] =
@@ -121,6 +121,21 @@ Vertex planeVertices[] =
 
 glm::vec3 lightDirection = glm::vec3(0.5f, -0.5f, -1.0f);
 
+Vertex quadVertices[] =
+		{
+				{glm::vec3(-1.0f, -1.0f, 0.0f), {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0,0}},
+				{glm::vec3(1.0f, -1.0f, 0.0f), {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1,0}},
+				{glm::vec3(-1.0f, 1.0f, 0.0f), {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0,1}},
+				{glm::vec3(1.0f, 1.0f, 0.0f), {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1,1}},
+
+		};
+
+GLuint quadIndices[] =
+		{
+				0, 1, 2,
+				2, 1, 3
+		};
+
 
 
 int main(int argc, char* argv[])
@@ -141,6 +156,8 @@ int main(int argc, char* argv[])
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 
+	GraphicalObject quad(quadVertices, 4, quadIndices, 6);
+
 	Skybox skybox("../Yokohama2/posx.jpg", "../Yokohama2/negx.jpg", "../Yokohama2/posy.jpg", "../Yokohama2/negy.jpg",
 				  "../Yokohama2/posz.jpg",
 				  "../Yokohama2/negz.jpg");
@@ -148,7 +165,7 @@ int main(int argc, char* argv[])
 	GraphicalObject cube(cube_vertices, sizeof(cube_vertices)/sizeof(cube_vertices[0]),
 			  cube_indices, sizeof(cube_indices)/sizeof(cube_indices[0]), glm::vec3(0.0f), glm::vec3(0.0f));
 	GraphicalObject cube2(cube_vertices, sizeof(cube_vertices)/sizeof(cube_vertices[0]),
-						 cube_indices, sizeof(cube_indices)/sizeof(cube_indices[0]), glm::vec3(1.0f, 1.0f, 0.0f));
+						 cube_indices, sizeof(cube_indices)/sizeof(cube_indices[0]), glm::vec3(0.3f, 1.05f, 0.0f));
 	GraphicalObject cube3(cube_vertices2, sizeof(cube_vertices2)/sizeof(cube_vertices[2]),
 						  cube_indices, sizeof(cube_indices)/sizeof(cube_indices[0]), glm::vec3(3.0f, 1.0f, -5.0f));
 	GraphicalObject plane(planeVertices, 4, planeIndices, 6, {0.0f, 0.0f, 0.0f});
@@ -173,6 +190,14 @@ int main(int argc, char* argv[])
 	parallaxMapShader.Load("../src/Shaders/Parallax/ParallaxVertex.glsl",
 						   "../src/Shaders/Parallax/ParallaxFragment.glsl");
 
+
+	Shader geomPassShader, aoPassShader, blurPassShader;
+	geomPassShader.Load("../src/Shaders/SSAO/GeometryPass/GPassVertex.glsl",
+						"../src/Shaders/SSAO/GeometryPass/GPassFragment.glsl");
+	aoPassShader.Load("../src/Shaders/SSAO/SSAOPass/SSAOPassVertex.glsl",
+					  "../src/Shaders/SSAO/SSAOPass/SSAOPassFragment.glsl");
+	blurPassShader.Load("../src/Shaders/SSAO/BlurPass/BlurVertex.glsl",
+						"../src/Shaders/SSAO/BlurPass/BlurFragment.glsl");
 
 	// !!!! ATTENTION !!!!!
 	bool SoftShadows = true;
@@ -244,11 +269,94 @@ int main(int argc, char* argv[])
 	plane2.LoadMaterial(material2);
 
 
+
+	FBO gBuffer, aoBuffer, blurBuffer;
+
+
+	gBuffer.Init(width, height, true, GL_RGB32F);
+	aoBuffer.Init(width, height, false, GL_R32F);
+	blurBuffer.Init(width, height, false, GL_R32F);
+	GLint posTextureUnitLocation = glGetUniformLocation(aoPassShader.Program(), "gPositionMap");
+	GLint projmatLocation = glGetUniformLocation(aoPassShader.Program(), "proj");
+	GLint kernelLocation = glGetUniformLocation(aoPassShader.Program(), "gKernel");
+
+
+	GLint inputTextureUnitLocation = glGetUniformLocation(blurPassShader.Program(), "gColorMap");
+	GLint aoTextureUnitLocation = glGetUniformLocation(shadowShader.Program(), "gAOMap");
+	GLint screenSizeLocation = glGetUniformLocation(shadowShader.Program(), "ScreenSize");
+
+	blurPassShader.UseProgram();
+	glUniform1i(inputTextureUnitLocation, INPUT_TEXTURE_UNIT - GL_TEXTURE0);
+	shadowShader.UseProgram();
+	glUniform1i(aoTextureUnitLocation, AO_TEXTURE_UNIT - GL_TEXTURE0);
+	glUniform2f(screenSizeLocation, width, height);
+
+#define KERNEL_SIZE 128
+
+	glm::vec3 kernel[KERNEL_SIZE];
+
+	for(int i = 0; i < KERNEL_SIZE; ++i)
+	{
+		float scale = (float)i / (float)(KERNEL_SIZE);
+		glm::vec3 v;
+		v.x = 2.0f * (float)rand()/RAND_MAX - 1.0f;
+		v.y = 2.0f * (float)rand()/RAND_MAX - 1.0f;
+		v.z = 2.0f * (float)rand()/RAND_MAX - 1.0f;
+		// Use an acceleration function so more points are
+		// located closer to the origin
+		v *= (0.1f + 0.9f * scale * scale);
+
+		kernel[i] = v;
+	}
+
+	aoPassShader.UseProgram();
+	glUniform3fv(kernelLocation, KERNEL_SIZE, (GLfloat const*) &kernel[0]);
+	glUniform1i(posTextureUnitLocation, POSITION_TEXTURE_UNIT - GL_TEXTURE0);
+	glm::mat4 proj;
+	camera.GetProjection(proj);
+	glUniformMatrix4fv(projmatLocation, 1, GL_FALSE, &proj[0][0]);
+
+
+
+
+
 	do
 	{
 
+		//Geometry pass;
+		gBuffer.BindForWriting();
+		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+//		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		cube.LoadShader(geomPassShader);
+		cube.Draw(camera);
+		cube2.LoadShader(geomPassShader);
+		cube2.Draw(camera);
+		cube3.LoadShader(geomPassShader);
+		cube3.Draw(camera);
+		plane.LoadShader(geomPassShader);
+		plane.Draw(camera);
+		plane2.LoadShader(geomPassShader);
+		plane2.Draw(camera);
+
+		//SSAO pass
+		aoPassShader.UseProgram();
+		camera.GetProjection(proj);
+		glUniformMatrix4fv(projmatLocation, 1, GL_FALSE, &proj[0][0]);
+
+		gBuffer.BindForReading(POSITION_TEXTURE_UNIT);
+		aoBuffer.BindForWriting();
+		glClear(GL_COLOR_BUFFER_BIT);
+		quad.LoadShader(aoPassShader);
+		quad.Draw(camera);
+		//Blur pass
+		aoBuffer.BindForReading(INPUT_TEXTURE_UNIT);
+		blurBuffer.BindForWriting();
+		glClear(GL_COLOR_BUFFER_BIT);
+		quad.LoadShader(blurPassShader);
+		quad.Draw(camera);
 
 
+		//Lightning pass
 		//ShadowMap pass
 		glCullFace(GL_FRONT);
 		shadowMapTechnique.WriteShadowTexture();
@@ -258,16 +366,23 @@ int main(int argc, char* argv[])
 		cube2.Draw(shadowCamera);
 		cube3.LoadShader(shadowGenShader);
 		cube3.Draw(shadowCamera);
+		plane.LoadShader(shadowGenShader);
 		plane2.Draw(shadowCamera);
 		glCullFace(GL_BACK);
 
 		//Render pass
+		blurBuffer.BindForReading(AO_TEXTURE_UNIT);
+
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
+
+		plane.LoadShader(normalMapShader);
 		plane.DrawIlluminated(camera, glm::vec4(lightDirection,1.0f));
 
 
+
+		plane2.LoadShader(parallaxMapShader);
 		plane2.DrawIlluminated(camera, glm::vec4(lightDirection, 1.0f));
 
 		cube.LoadShader(shadowShader);
@@ -281,6 +396,7 @@ int main(int argc, char* argv[])
 		cube2.LoadShader(cubemapReflectionShader);
 		cube2.Draw(camera);
 
+
 // 		cube.Rotate(glm::vec3(glfwGetTime(), glfwGetTime(), glfwGetTime()));
 
 
@@ -288,12 +404,14 @@ int main(int argc, char* argv[])
 //		shadowCamera.Update(window);
 
 		// !!!!!!!
-		shadowShader.UseProgram();
 		SoftShadows = (glfwGetKey(window.GetGLFWPtr(), GLFW_KEY_Q) != GLFW_PRESS);
+		shadowShader.UseProgram();
 		glUniform1i(SoftShadowsSSID, SoftShadows);
 		normalMapShader.UseProgram();
 		glUniform1i(SoftShadowNMID, SoftShadows);
 		//!!!!!!!!
+
+
 
 		glfwSwapBuffers(window.GetGLFWPtr());
 		glfwPollEvents();

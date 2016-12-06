@@ -1,4 +1,4 @@
-#version 330 core
+#version 410 core
 
 
 
@@ -10,9 +10,13 @@ uniform vec4 MaterialDiffuse;
 uniform float Shininess;
 
 uniform vec4 LightDiffuse = vec4(1.0,1.0,1.0,1.0);
-uniform vec4 LightAmbient = vec4(0.2,0.2,0.2,1.0);
+//uniform vec4 LightAmbient = vec4(0.2,0.2,0.2,1.0);
 
 uniform bool SoftShadows;
+
+uniform sampler2D gAOMap;
+
+uniform vec2 ScreenSize;
 
 
 vec4 GetAmbientReflection(
@@ -112,6 +116,11 @@ float random(vec3 seed, int i)
 	return fract(sin(dot_product) * 43758.5453);
 }
 
+vec2 CalcScreenTexCoord()
+{
+    return gl_FragCoord.xy / ScreenSize;
+}
+
 in vec4 fragmentColor;
 //in vec3 vertexPosition_worldSpace;
 in vec3 normal_worldSpace;
@@ -158,6 +167,8 @@ void main()
         visibility = texture(shadowMap, vec3(ShadowCoord.xy, (ShadowCoord.z-bias) / ShadowCoord.w));
     }
 
+    vec4 AOColor = vec4(1.5) * texture(gAOMap, CalcScreenTexCoord()).r;
+
 
     color = (visibility *
     GetBlinnReflection( MaterialDiffuse,
@@ -166,7 +177,8 @@ void main()
                         n,
                         halfAngle,
                         l,
-                        LightDiffuse) + GetAmbientReflection(MaterialAmbient, LightAmbient)) * fragmentColor;
+                        LightDiffuse) + MaterialAmbient * AOColor);
+
 
 
 }
