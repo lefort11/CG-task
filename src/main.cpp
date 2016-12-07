@@ -5,7 +5,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 
-
 #include "Window.h"
 #include "Engine.h"
 
@@ -121,7 +120,7 @@ Vertex planeVertices[] =
 
 glm::vec3 lightDirection = glm::vec3(0.5f, -0.5f, -1.0f);
 
-Vertex quadVertices[] =
+Vertex SSAOTechnique::quadVertices[] =
 		{
 				{glm::vec3(-1.0f, -1.0f, 0.0f), {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0,0}},
 				{glm::vec3(1.0f, -1.0f, 0.0f), {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1,0}},
@@ -130,7 +129,7 @@ Vertex quadVertices[] =
 
 		};
 
-GLuint quadIndices[] =
+GLuint SSAOTechnique::quadIndices[] =
 		{
 				0, 1, 2,
 				2, 1, 3
@@ -144,9 +143,7 @@ int main(int argc, char* argv[])
 	Window window(WIDTH, HEIGHT, "Scene");
 	window.Initialize();
 
-
 	OrbitalCamera camera(WIDTH, HEIGHT);
-
 
 	CalculateTangentSpace(planeVertices, sizeof(planeVertices)/sizeof(planeVertices[0]), planeIndices,
 			sizeof(planeIndices)/sizeof(planeIndices[0]));
@@ -156,7 +153,6 @@ int main(int argc, char* argv[])
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 
-	GraphicalObject quad(quadVertices, 4, quadIndices, 6);
 
 	Skybox skybox("../Yokohama2/posx.jpg", "../Yokohama2/negx.jpg", "../Yokohama2/posy.jpg", "../Yokohama2/negy.jpg",
 				  "../Yokohama2/posz.jpg",
@@ -189,8 +185,6 @@ int main(int argc, char* argv[])
 
 	parallaxMapShader.Load("../src/Shaders/Parallax/ParallaxVertex.glsl",
 						   "../src/Shaders/Parallax/ParallaxFragment.glsl");
-
-
 	Shader geomPassShader, aoPassShader, blurPassShader;
 	geomPassShader.Load("../src/Shaders/SSAO/GeometryPass/GPassVertex.glsl",
 						"../src/Shaders/SSAO/GeometryPass/GPassFragment.glsl");
@@ -213,17 +207,13 @@ int main(int argc, char* argv[])
 	int width, height;
 	glfwGetFramebufferSize(window.GetGLFWPtr(), &width, &height);
 	shadowMapFBO.Init(width, height);
-
 	Shader shadowGenShader;
 	shadowGenShader.Load("../src/Shaders/ShadowShaders/ShadowGenVertex.glsl",
 						 "../src/Shaders/ShadowShaders/ShadowGenFragment.glsl");
 
-
-
 	Texture normalTex(GL_TEXTURE_2D, "../normal map/normal_map.jpg");
 
 	Texture colorTex(GL_TEXTURE_2D, "../normal map/bricks.jpg");
-
 
 	Texture normalTex2(GL_TEXTURE_2D, "../bricks/bricks2_normal.jpg");
 	Texture colorTex2(GL_TEXTURE_2D, "../bricks/bricks2.jpg");
@@ -268,65 +258,20 @@ int main(int argc, char* argv[])
 	cube3.LoadMaterial(material);
 	plane2.LoadMaterial(material2);
 
-
-
 	FBO gBuffer, aoBuffer, blurBuffer;
-
-
 	gBuffer.Init(width, height, true, GL_RGB32F);
 	aoBuffer.Init(width, height, false, GL_R32F);
 	blurBuffer.Init(width, height, false, GL_R32F);
-	GLint posTextureUnitLocation = glGetUniformLocation(aoPassShader.Program(), "gPositionMap");
-	GLint projmatLocation = glGetUniformLocation(aoPassShader.Program(), "proj");
-	GLint kernelLocation = glGetUniformLocation(aoPassShader.Program(), "gKernel");
 
-
-	GLint inputTextureUnitLocation = glGetUniformLocation(blurPassShader.Program(), "gColorMap");
-	GLint aoTextureUnitLocation = glGetUniformLocation(shadowShader.Program(), "gAOMap");
-	GLint screenSizeLocation = glGetUniformLocation(shadowShader.Program(), "ScreenSize");
-
-	blurPassShader.UseProgram();
-	glUniform1i(inputTextureUnitLocation, INPUT_TEXTURE_UNIT - GL_TEXTURE0);
-	shadowShader.UseProgram();
-	glUniform1i(aoTextureUnitLocation, AO_TEXTURE_UNIT - GL_TEXTURE0);
-	glUniform2f(screenSizeLocation, width, height);
-
-#define KERNEL_SIZE 128
-
-	glm::vec3 kernel[KERNEL_SIZE];
-
-	for(int i = 0; i < KERNEL_SIZE; ++i)
-	{
-		float scale = (float)i / (float)(KERNEL_SIZE);
-		glm::vec3 v;
-		v.x = 2.0f * (float)rand()/RAND_MAX - 1.0f;
-		v.y = 2.0f * (float)rand()/RAND_MAX - 1.0f;
-		v.z = 2.0f * (float)rand()/RAND_MAX - 1.0f;
-		// Use an acceleration function so more points are
-		// located closer to the origin
-		v *= (0.1f + 0.9f * scale * scale);
-
-		kernel[i] = v;
-	}
-
-	aoPassShader.UseProgram();
-	glUniform3fv(kernelLocation, KERNEL_SIZE, (GLfloat const*) &kernel[0]);
-	glUniform1i(posTextureUnitLocation, POSITION_TEXTURE_UNIT - GL_TEXTURE0);
-	glm::mat4 proj;
-	camera.GetProjection(proj);
-	glUniformMatrix4fv(projmatLocation, 1, GL_FALSE, &proj[0][0]);
-
-
-
+	SSAOTechnique ssaoTechnique(gBuffer, aoBuffer, blurBuffer);
+	ssaoTechnique.Init(geomPassShader, aoPassShader, blurPassShader, shadowShader, camera, width, height);
 
 
 	do
 	{
-
 		//Geometry pass;
-		gBuffer.BindForWriting();
-		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-//		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		ssaoTechnique.GeometryPassInit();
+
 		cube.LoadShader(geomPassShader);
 		cube.Draw(camera);
 		cube2.LoadShader(geomPassShader);
@@ -339,24 +284,12 @@ int main(int argc, char* argv[])
 		plane2.Draw(camera);
 
 		//SSAO pass
-		aoPassShader.UseProgram();
-		camera.GetProjection(proj);
-		glUniformMatrix4fv(projmatLocation, 1, GL_FALSE, &proj[0][0]);
-
-		gBuffer.BindForReading(POSITION_TEXTURE_UNIT);
-		aoBuffer.BindForWriting();
-		glClear(GL_COLOR_BUFFER_BIT);
-		quad.LoadShader(aoPassShader);
-		quad.Draw(camera);
+		ssaoTechnique.SSAOPass();
 		//Blur pass
-		aoBuffer.BindForReading(INPUT_TEXTURE_UNIT);
-		blurBuffer.BindForWriting();
-		glClear(GL_COLOR_BUFFER_BIT);
-		quad.LoadShader(blurPassShader);
-		quad.Draw(camera);
-
+		ssaoTechnique.BlurPass();
 
 		//Lightning pass
+		ssaoTechnique.LightningPassInit();
 		//ShadowMap pass
 		glCullFace(GL_FRONT);
 		shadowMapTechnique.WriteShadowTexture();
@@ -371,16 +304,11 @@ int main(int argc, char* argv[])
 		glCullFace(GL_BACK);
 
 		//Render pass
-		blurBuffer.BindForReading(AO_TEXTURE_UNIT);
-
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-
 		plane.LoadShader(normalMapShader);
 		plane.DrawIlluminated(camera, glm::vec4(lightDirection,1.0f));
-
-
 
 		plane2.LoadShader(parallaxMapShader);
 		plane2.DrawIlluminated(camera, glm::vec4(lightDirection, 1.0f));
@@ -396,9 +324,7 @@ int main(int argc, char* argv[])
 		cube2.LoadShader(cubemapReflectionShader);
 		cube2.Draw(camera);
 
-
 // 		cube.Rotate(glm::vec3(glfwGetTime(), glfwGetTime(), glfwGetTime()));
-
 
 		camera.Update(window);
 //		shadowCamera.Update(window);
@@ -410,8 +336,6 @@ int main(int argc, char* argv[])
 		normalMapShader.UseProgram();
 		glUniform1i(SoftShadowNMID, SoftShadows);
 		//!!!!!!!!
-
-
 
 		glfwSwapBuffers(window.GetGLFWPtr());
 		glfwPollEvents();

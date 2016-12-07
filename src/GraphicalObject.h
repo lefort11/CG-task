@@ -180,22 +180,6 @@ class GraphicalObject
 
 	Material* m_pMaterial;
 
-	GLint mvpID;
-	GLint modelID;
-	GLint normalMatID;
-
-	GLint viewID;
-
-	GLint lightDirectionID;
-
-
-	GLint lightViewID;
-
-	GLint MaterialSpecularID;
-	GLint MaterialAmbientID;
-	GLint MaterialDiffuseID;
-	GLint MaterialShininessID;
-
 
 
 public:
@@ -220,29 +204,12 @@ public:
 
 	void LoadShader(Shader& shader)
 	{
-		mvpID = glGetUniformLocation(shader.Program(), "mvp");
-		modelID = glGetUniformLocation(shader.Program(), "model");
-		normalMatID = glGetUniformLocation(shader.Program(), "normalMat");
-
-		viewID = glGetUniformLocation(shader.Program(), "view");
-
-		lightDirectionID = glGetUniformLocation(shader.Program(), "lightDirection");
-
-		lightViewID = glGetUniformLocation(shader.Program(), "lightViewMat");
-
-
-
-
 		m_pShader = &shader;
 	}
 
 	void LoadMaterial(Material& material)
 	{
 		m_pMaterial = &material;
-		MaterialAmbientID = glGetUniformLocation(m_pShader->Program(), "MaterialAmbient");
-		MaterialDiffuseID = glGetUniformLocation(m_pShader->Program(), "MaterialDiffuse");
-		MaterialSpecularID = glGetUniformLocation(m_pShader->Program(), "MaterialSpecular");
-		MaterialShininessID = glGetUniformLocation(m_pShader->Program(), "Shininess");
 		m_pMaterial->InitLightningTechniques(*m_pShader);
 
 	}
@@ -251,8 +218,6 @@ public:
 	void Draw(Camera const& camera) const
 	{
 		m_pShader->UseProgram();
-
-
 
 		glm::mat4 mvp;
 		glm::mat4 model = glm::translate(m_CenterOffset) * glm::toMat4(glm::quat(m_Rotatation)) * glm::scale(m_Scale);
@@ -264,11 +229,11 @@ public:
 
 		glm::mat3 normalMat = glm::transpose(glm::inverse(glm::mat3x3(model)));
 
-		glUniformMatrix4fv(mvpID, 1, GL_FALSE, &mvp[0][0]);
-		glUniformMatrix4fv(modelID, 1, GL_FALSE, &model[0][0]);
-		glUniformMatrix3fv(normalMatID, 1, GL_FALSE, &normalMat[0][0]);
+		glUniformMatrix4fv(m_pShader->MVPID(), 1, GL_FALSE, &mvp[0][0]);
+		glUniformMatrix4fv(m_pShader->ModelID(), 1, GL_FALSE, &model[0][0]);
+		glUniformMatrix3fv(m_pShader->NormalMatID(), 1, GL_FALSE, &normalMat[0][0]);
 
-		glUniformMatrix4fv(viewID, 1, GL_FALSE, &view[0][0]);
+		glUniformMatrix4fv(m_pShader->ViewID(), 1, GL_FALSE, &view[0][0]);
 
 		m_Mesh.Draw();
 
@@ -294,22 +259,19 @@ public:
 
 		glm::mat3 normalMat = glm::transpose(glm::inverse(glm::mat3x3(view * model)));
 
-		glUniformMatrix4fv(mvpID, 1, GL_FALSE, &mvp[0][0]);
-		glUniformMatrix4fv(modelID, 1, GL_FALSE, &model[0][0]);
-		glUniformMatrix3fv(normalMatID, 1, GL_FALSE, &normalMat[0][0]);
+		glUniformMatrix4fv(m_pShader->MVPID(), 1, GL_FALSE, &mvp[0][0]);
+		glUniformMatrix4fv(m_pShader->ModelID(), 1, GL_FALSE, &model[0][0]);
+		glUniformMatrix3fv(m_pShader->NormalMatID(), 1, GL_FALSE, &normalMat[0][0]);
 
-		glUniformMatrix4fv(viewID, 1, GL_FALSE, &view[0][0]);
+		glUniformMatrix4fv(m_pShader->ViewID(), 1, GL_FALSE, &view[0][0]);
 
-		glUniform4fv(lightDirectionID, 1, &lightDirection[0]);
+		glUniform4fv(m_pShader->LightDirectionID(), 1, &lightDirection[0]);
 
-		glUniform4fv(MaterialSpecularID, 1, &(m_pMaterial->Specular[0]));
-		glUniform4fv(MaterialDiffuseID, 1, &(m_pMaterial->Diffuse[0]));
-		glUniform4fv(MaterialAmbientID, 1, &(m_pMaterial->Ambient[0]));
-		glUniform1f(MaterialShininessID, m_pMaterial->Shininess);
-
-
-
-		glUniformMatrix4fv(lightViewID, 1, GL_FALSE, &lightViewMat[0][0]);
+		glUniform4fv(m_pShader->MaterialSpecularID(), 1, &(m_pMaterial->Specular[0]));
+		glUniform4fv(m_pShader->MaterialDiffuseID(), 1, &(m_pMaterial->Diffuse[0]));
+		glUniform4fv(m_pShader->MaterialAmbientID(), 1, &(m_pMaterial->Ambient[0]));
+		glUniform1f(m_pShader->MaterialShininessID(), m_pMaterial->Shininess);
+		glUniformMatrix4fv(m_pShader->LightViewID(), 1, GL_FALSE, &lightViewMat[0][0]);
 
 		m_pMaterial->DoStuff(*m_pShader, model);
 

@@ -114,6 +114,7 @@ CMakeFiles/mashgraph.dir/src/main.cpp.o: ../src/Engine.h
 CMakeFiles/mashgraph.dir/src/main.cpp.o: ../src/FBO.h
 CMakeFiles/mashgraph.dir/src/main.cpp.o: ../src/GraphicalObject.h
 CMakeFiles/mashgraph.dir/src/main.cpp.o: ../src/LightingTechnique.h
+CMakeFiles/mashgraph.dir/src/main.cpp.o: ../src/SSAO.h
 CMakeFiles/mashgraph.dir/src/main.cpp.o: ../src/Shader.h
 CMakeFiles/mashgraph.dir/src/main.cpp.o: ../src/TangentSpace.h
 CMakeFiles/mashgraph.dir/src/main.cpp.o: ../src/Texture.h

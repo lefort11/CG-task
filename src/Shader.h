@@ -11,6 +11,18 @@ class Shader
 {
 	GLuint m_ProgramID;
 
+	GLint m_MVPID;
+	GLint m_ModelID;
+	GLint m_NormalMatID;
+	GLint m_ViewID;
+	GLint m_LightDirectionID;
+	GLint m_LightViewID;
+
+	GLint m_MaterialSpecularID;
+	GLint m_MaterialDiffuseID;
+	GLint m_MaterialAmbientID;
+	GLint m_MaterialShininessID;
+
 public:
 	Shader(): m_ProgramID(0) {}
 	void Load(char const* vertexFilePath, char const* fragmentFilePath)
@@ -89,7 +101,76 @@ public:
 
 		glDeleteShader(VertexShaderID);
 		glDeleteShader(FragmentShaderID);
+
+
+		m_MVPID = glGetUniformLocation(m_ProgramID, "mvp");
+		m_ModelID = glGetUniformLocation(m_ProgramID, "model");
+		m_NormalMatID = glGetUniformLocation(m_ProgramID, "normalMat");
+
+		m_ViewID = glGetUniformLocation(m_ProgramID, "view");
+
+		m_LightDirectionID = glGetUniformLocation(m_ProgramID, "lightDirection");
+
+		m_LightViewID = glGetUniformLocation(m_ProgramID, "lightViewMat");
+
+		m_MaterialAmbientID = glGetUniformLocation(m_ProgramID, "MaterialAmbient");
+		m_MaterialDiffuseID = glGetUniformLocation(m_ProgramID, "MaterialDiffuse");
+		m_MaterialSpecularID = glGetUniformLocation(m_ProgramID, "MaterialSpecular");
+		m_MaterialShininessID = glGetUniformLocation(m_ProgramID, "Shininess");
+
+
 	}
+
+	GLint MVPID() const
+	{
+		return m_MVPID;
+	}
+
+	GLint ModelID() const
+	{
+		return m_ModelID;
+	}
+
+	GLint NormalMatID() const
+	{
+		return m_NormalMatID;
+	}
+
+	GLint ViewID() const
+	{
+		return m_ViewID;
+	}
+
+	GLint LightDirectionID() const
+	{
+		return m_LightDirectionID;
+	}
+
+	GLint LightViewID() const
+	{
+		return m_LightViewID;
+	}
+
+	GLint MaterialAmbientID() const
+	{
+		return m_MaterialAmbientID;
+	}
+
+	GLint MaterialDiffuseID() const
+	{
+		return m_MaterialDiffuseID;
+	}
+
+	GLint MaterialSpecularID() const
+	{
+		return m_MaterialSpecularID;
+	}
+
+	GLint MaterialShininessID() const
+	{
+		return m_MaterialShininessID;
+	}
+
 
 	void DeleteProgram() const
 	{

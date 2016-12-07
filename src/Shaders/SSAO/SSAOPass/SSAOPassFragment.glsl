@@ -6,7 +6,7 @@ uniform sampler2D gPositionMap;
 uniform float gSampleRad = 0.5f;
 uniform mat4 proj;
 
-const int MAX_KERNEL_SIZE = 128;
+const int MAX_KERNEL_SIZE = 32;
 uniform vec3 gKernel[MAX_KERNEL_SIZE];
 
 out vec4 color;

@@ -891,6 +891,8 @@ Texture.h
 /Users/Gleb/Desktop/mashgraph/src/Texture.h
 FBO.h
 /Users/Gleb/Desktop/mashgraph/src/FBO.h
+SSAO.h
+/Users/Gleb/Desktop/mashgraph/src/SSAO.h
 
 /Users/Gleb/Desktop/mashgraph/src/FBO.h
 GL/glew.h
@@ -935,6 +937,20 @@ Texture.h
 /Users/Gleb/Desktop/mashgraph/src/Texture.h
 FBO.h
 /Users/Gleb/Desktop/mashgraph/src/FBO.h
+
+/Users/Gleb/Desktop/mashgraph/src/SSAO.h
+FBO.h
+/Users/Gleb/Desktop/mashgraph/src/FBO.h
+Shader.h
+/Users/Gleb/Desktop/mashgraph/src/Shader.h
+LightingTechnique.h
+/Users/Gleb/Desktop/mashgraph/src/LightingTechnique.h
+Camera.h
+/Users/Gleb/Desktop/mashgraph/src/Camera.h
+Vertex.h
+/Users/Gleb/Desktop/mashgraph/src/Vertex.h
+GraphicalObject.h
+/Users/Gleb/Desktop/mashgraph/src/GraphicalObject.h
 
 /Users/Gleb/Desktop/mashgraph/src/Shader.h
 GL/glew.h

@@ -31,6 +31,8 @@
 
 #include "FBO.h"
 
+#include "SSAO.h"
+
 
 
 #endif //ENGINE_H

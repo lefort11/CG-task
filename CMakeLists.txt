@@ -20,29 +20,29 @@ if(WIN32)
     # find glew
     #########################################################
     FIND_PATH(GLEW_INCLUDE_DIRS GL/glew.h ${CMAKE_SOURCE_DIR}/ext/Bin/glew-2.0.0/include)
-    FIND_LIBRARY(GLEW_LIBRARY glew32 ${CMAKE_SOURCE_DIR}/ext/Bin/glew-2.0.0/lib/Release/Win32)
+    FIND_LIBRARY(GLEW_LIBRARY glew32 ${CMAKE_SOURCE_DIR}/ext/Bin/glew-2.0.0/lib/Release/x64)
 
     include_directories(${GLEW_INCLUDE_DIRS})
-    link_directories(${CMAKE_SOURCE_DIR}/ext/Bin/glew-2.0.0/lib/Release/Win32)
-    link_directories(${CMAKE_SOURCE_DIR}/ext/Bin/glew-2.0.0/Bin/Release/Win32)
+    link_directories(${CMAKE_SOURCE_DIR}/ext/Bin/glew-2.0.0/lib/Release/x64)
+    link_directories(${CMAKE_SOURCE_DIR}/ext/Bin/glew-2.0.0/Bin/Release/x64)
 
     #########################################################
     # find glfw
     #########################################################
-    FIND_PATH(GLFW_INCLUDE_DIRS GLFW/glfw3.h ${CMAKE_SOURCE_DIR}/ext/Bin/glfwWIN32/include)
-    FIND_LIBRARY(GLFW_LIBRARIES glfw3 ${CMAKE_SOURCE_DIR}/ext/Bin/glfwWIN32/lib-vc2015)
+    FIND_PATH(GLFW_INCLUDE_DIRS GLFW/glfw3.h ${CMAKE_SOURCE_DIR}/ext/Bin/glfwWIN64/include)
+    FIND_LIBRARY(GLFW_LIBRARIES glfw3 ${CMAKE_SOURCE_DIR}/ext/Bin/glfwWIN64/lib-vc2015)
 
     include_directories(${GLFW_INCLUDE_DIRS})
-    link_directories(${CMAKE_SOURCE_DIR}/ext/Bin/glfwWIN32/lib-vc2015)
+    link_directories(${CMAKE_SOURCE_DIR}/ext/Bin/glfwWIN64/lib-vc2015)
 
     #########################################################
     # find FreeImage
     #########################################################
-    FIND_PATH(FREEIMAGE_INCLUDE_DIRS freeimage.h ${CMAKE_SOURCE_DIR}/ext/Bin/FreeImage/Dist/x32)
-    FIND_LIBRARY(FREEIMAGE_LIBRARY FreeImage ${CMAKE_SOURCE_DIR}/ext/Bin/FreeImage/Dist/x32)
+    FIND_PATH(FREEIMAGE_INCLUDE_DIRS freeimage.h ${CMAKE_SOURCE_DIR}/ext/Bin/FreeImage/Dist/x64)
+    FIND_LIBRARY(FREEIMAGE_LIBRARY FreeImage ${CMAKE_SOURCE_DIR}/ext/Bin/FreeImage/Dist/x64)
 
     include_directories(${FREEIMAGE_INCLUDE_DIRS})
-    link_directories(${CMAKE_SOURCE_DIR}/ext/Bin/FreeImage/Dist/x32)
+    link_directories(${CMAKE_SOURCE_DIR}/ext/Bin/FreeImage/Dist/x64)
 
 endif(WIN32)
 
