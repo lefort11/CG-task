@@ -92,6 +92,7 @@ mashgraph: CMakeFiles/mashgraph.dir/src/main.cpp.o
 mashgraph: CMakeFiles/mashgraph.dir/build.make
 mashgraph: /usr/local/lib/libfreeimage.3.17.0.dylib
 mashgraph: /usr/local/lib/libGLEW.dylib
+mashgraph: /usr/local/lib/libGLEW.dylib
 mashgraph: CMakeFiles/mashgraph.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/Gleb/Desktop/mashgraph/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable mashgraph"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/mashgraph.dir/link.txt --verbose=$(VERBOSE)

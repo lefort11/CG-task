@@ -118,7 +118,7 @@ Vertex planeVertices[] =
 
 
 
-glm::vec3 lightDirection = glm::vec3(0.5f, -0.5f, -1.0f);
+glm::vec3 lightDirection = glm::vec3(1.0f, -1.0f, -1.0f);
 
 Vertex SSAOTechnique::quadVertices[] =
 		{
@@ -143,6 +143,12 @@ int main(int argc, char* argv[])
 	Window window(WIDTH, HEIGHT, "Scene");
 	window.Initialize();
 
+	std::vector<Vertex> cubeVertices;
+	std::vector<Vertex> jeepVertices;
+
+	LoadOBJ("cube.obj", cubeVertices);
+	bool res = LoadOBJ("jeep.obj", jeepVertices);
+
 	OrbitalCamera camera(WIDTH, HEIGHT);
 
 	CalculateTangentSpace(planeVertices, sizeof(planeVertices)/sizeof(planeVertices[0]), planeIndices,
@@ -158,14 +164,19 @@ int main(int argc, char* argv[])
 				  "../Yokohama2/posz.jpg",
 				  "../Yokohama2/negz.jpg");
 
-	GraphicalObject cube(cube_vertices, sizeof(cube_vertices)/sizeof(cube_vertices[0]),
+/*	GraphicalObject cube(cube_vertices, sizeof(cube_vertices)/sizeof(cube_vertices[0]),
 			  cube_indices, sizeof(cube_indices)/sizeof(cube_indices[0]), glm::vec3(0.0f), glm::vec3(0.0f));
 	GraphicalObject cube2(cube_vertices, sizeof(cube_vertices)/sizeof(cube_vertices[0]),
 						 cube_indices, sizeof(cube_indices)/sizeof(cube_indices[0]), glm::vec3(0.3f, 1.05f, 0.0f));
 	GraphicalObject cube3(cube_vertices2, sizeof(cube_vertices2)/sizeof(cube_vertices[2]),
-						  cube_indices, sizeof(cube_indices)/sizeof(cube_indices[0]), glm::vec3(3.0f, 1.0f, -5.0f));
+						  cube_indices, sizeof(cube_indices)/sizeof(cube_indices[0]), glm::vec3(3.0f, 1.0f, -5.0f)); */
+
+	GraphicalObject cube(cubeVertices, glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.5f));
+	GraphicalObject cube2(cubeVertices, glm::vec3(0.3f, 1.0f, 0.0f), glm::vec3(0.0f), glm::vec3(0.5f));
+	GraphicalObject cube3(cubeVertices, glm::vec3(3.0f, 1.0f, -3.0f), glm::vec3(0.0f), glm::vec3(1.5f));
 	GraphicalObject plane(planeVertices, 4, planeIndices, 6, {0.0f, 0.0f, 0.0f});
 
+	GraphicalObject jeep(jeepVertices, glm::vec3(-3.0f, -0.5f, 0.0f), glm::vec3(0.0f), glm::vec3(0.005f));
 
 	GraphicalObject plane2(planeVertices, 4, planeIndices, 6, glm::vec3(0.0f, 4.0f, -9.0f), glm::vec3(F_PI/2, 0.0f, 0.0f),
 						   glm::vec3(0.5f));
@@ -231,6 +242,7 @@ int main(int argc, char* argv[])
 
 	Material material;
 	material.AddLightningTechnique(shadowMapTechnique);
+	material.Shininess = 10.0f;
 
 	Material material1;
 	material1.Shininess = 100.0f;
@@ -251,12 +263,14 @@ int main(int argc, char* argv[])
 	plane2.LoadShader(parallaxMapShader);
 
 	cube3.LoadShader(shadowShader);
+	jeep.LoadShader(shadowShader);
 
 	cube.LoadMaterial(material);
 	cube2.LoadMaterial(material0);
 	plane.LoadMaterial(material1);
 	cube3.LoadMaterial(material);
 	plane2.LoadMaterial(material2);
+	jeep.LoadMaterial(material);
 
 	FBO gBuffer, aoBuffer, blurBuffer;
 	gBuffer.Init(width, height, true, GL_RGB32F);
@@ -282,6 +296,8 @@ int main(int argc, char* argv[])
 		plane.Draw(camera);
 		plane2.LoadShader(geomPassShader);
 		plane2.Draw(camera);
+		jeep.LoadShader(geomPassShader);
+		jeep.Draw(camera);
 
 		//SSAO pass
 		ssaoTechnique.SSAOPass();
@@ -291,8 +307,7 @@ int main(int argc, char* argv[])
 		//Lightning pass
 		ssaoTechnique.LightningPassInit();
 		//ShadowMap pass
-		glCullFace(GL_FRONT);
-		shadowMapTechnique.WriteShadowTexture();
+		shadowMapTechnique.ShadowMapPassInit();
 		cube.LoadShader(shadowGenShader);
 		cube.Draw(shadowCamera);
 		cube2.LoadShader(shadowGenShader);
@@ -301,17 +316,20 @@ int main(int argc, char* argv[])
 		cube3.Draw(shadowCamera);
 		plane.LoadShader(shadowGenShader);
 		plane2.Draw(shadowCamera);
-		glCullFace(GL_BACK);
+		jeep.LoadShader(shadowGenShader);
+		jeep.Draw(shadowCamera);
 
 		//Render pass
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+		shadowMapTechnique.RenderPassInit();
 
 		plane.LoadShader(normalMapShader);
 		plane.DrawIlluminated(camera, glm::vec4(lightDirection,1.0f));
 
 		plane2.LoadShader(parallaxMapShader);
 		plane2.DrawIlluminated(camera, glm::vec4(lightDirection, 1.0f));
+
+		jeep.LoadShader(shadowShader);
+		jeep.DrawIlluminated(camera, glm::vec4(lightDirection,1.0f));
 
 		cube.LoadShader(shadowShader);
 		cube.DrawIlluminated(camera, glm::vec4(lightDirection, 1.0f));
@@ -323,6 +341,7 @@ int main(int argc, char* argv[])
 
 		cube2.LoadShader(cubemapReflectionShader);
 		cube2.Draw(camera);
+
 
 // 		cube.Rotate(glm::vec3(glfwGetTime(), glfwGetTime(), glfwGetTime()));
 

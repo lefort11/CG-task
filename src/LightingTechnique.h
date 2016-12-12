@@ -97,7 +97,7 @@ public:
 
 	}
 
-	void WriteShadowTexture()
+	void WriteShadowTexture() const
 	{
 		m_pShadowMapFBO->BindForWriting();
 		glClear(GL_DEPTH_BUFFER_BIT);
@@ -120,6 +120,19 @@ public:
 		LoadLightBiasMVP(shader, model);
 		ReadShadowTexture(SHADOW_TEXTURE_UNIT, shader);
 
+	}
+
+	void ShadowMapPassInit() const
+	{
+		glCullFace(GL_FRONT);
+		WriteShadowTexture();
+	}
+
+	void RenderPassInit() const
+	{
+		glCullFace(GL_BACK);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	}
 
 	LightingTechnique* Clone()

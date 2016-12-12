@@ -10,7 +10,7 @@ uniform vec4 MaterialDiffuse;
 uniform float Shininess;
 
 uniform vec4 LightDiffuse = vec4(1.0,1.0,1.0,1.0);
-//uniform vec4 LightAmbient = vec4(0.2,0.2,0.2,1.0);
+uniform vec4 LightAmbient = vec4(0.3,0.3,0.3,1.0);
 
 uniform bool SoftShadows;
 
@@ -152,7 +152,7 @@ void main()
 
     float cosAlpha = clamp( dot( E,R ), 0,1 ); */
 
-    float bias = 0;
+    float bias = 0.025;
 
     if(SoftShadows)
     {
@@ -167,7 +167,7 @@ void main()
         visibility = texture(shadowMap, vec3(ShadowCoord.xy, (ShadowCoord.z-bias) / ShadowCoord.w));
     }
 
-    vec4 AOColor = vec4(1.5) * texture(gAOMap, CalcScreenTexCoord()).r;
+    vec4 AOColor = vec4(1.0) * texture(gAOMap, CalcScreenTexCoord()).r;
 
 
     color = (visibility *

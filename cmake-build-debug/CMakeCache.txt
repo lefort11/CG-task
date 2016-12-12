@@ -207,6 +207,12 @@ GLEW_INCLUDE_DIR:PATH=/usr/local/include
 //Path to a library.
 GLEW_LIBRARY:FILEPATH=/usr/local/lib/libGLEW.dylib
 
+//The directory containing a CMake configuration file for GLFW3.
+GLFW3_DIR:PATH=/usr/local/lib/cmake/glfw3
+
+//The directory containing a CMake configuration file for GLFW.
+GLFW_DIR:PATH=GLFW_DIR-NOTFOUND
+
 //Include for OpenGL on OS X
 OPENGL_INCLUDE_DIR:PATH=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk/System/Library/Frameworks/OpenGL.framework
 
@@ -221,6 +227,9 @@ PKG_CONFIG_EXECUTABLE:FILEPATH=/usr/local/bin/pkg-config
 
 //Path to a program.
 ProcessorCount_cmd_sysctl:FILEPATH=/usr/sbin/sysctl
+
+//The directory containing a CMake configuration file for glfw3.
+glfw3_DIR:PATH=/usr/local/lib/cmake/glfw3
 
 //Value Computed by CMake
 mashgraph_BINARY_DIR:STATIC=/Users/Gleb/Desktop/mashgraph/cmake-build-debug

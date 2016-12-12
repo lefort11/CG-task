@@ -51,25 +51,6 @@ if(APPLE)
     find_package(PkgConfig REQUIRED)
 
     #########################################################
-    # find freeglut
-    #########################################################
-    FIND_PATH(Freeglut_INCLUDE_DIRS GL/freeglut.h /opt/X11/include)
-    FIND_LIBRARY(Freeglut_LIBRARY glut.3 /opt/X11/lib)
-
-    include_directories(${Freeglut_INCLUDE_DIRS})
-
-    #link_directories(${Freeglut_LIBRARY})
-    link_directories("/opt/X11/lib")
-
-    IF(Freeglut_INCLUDE_DIRS)
-        message("*** freeglut inlclude is found!")
-    ENDIF(Freeglut_INCLUDE_DIRS)
-
-    IF(Freeglut_LIBRARY)
-        message("*** freeglut lib is found!")
-    ENDIF(Freeglut_LIBRARY)
-
-    #########################################################
     # find glew
     #########################################################
     FIND_PACKAGE(GLEW REQUIRED) #some bug here
@@ -77,7 +58,7 @@ if(APPLE)
     FIND_LIBRARY(GLEW_LIBRARY GLEW.2.0.0 /usr/local/lib)
 
     include_directories(${GLEW_INCLUDE_DIRS})
-    link_directories("/usr/local/lib")
+    link_directories(${GLEW_LIBRARY_DIRS})
 
     IF(GLEW_INCLUDE_DIRS)
         message("*** Glew inlclude is found!")
@@ -92,7 +73,9 @@ if(APPLE)
     # find glfw
     #########################################################
     pkg_search_module(GLFW REQUIRED glfw3)
+    #FIND_PACKAGE(GLFW3 3.2 REQUIRED)
     include_directories(${GLFW_INCLUDE_DIRS})
+    link_directories(${GLFW_LIBRARY_DIRS})
 
     #########################################################
     # find FreeImage
@@ -109,6 +92,7 @@ if(APPLE)
     ENDIF(FREEIMAGE_LIBRARY)
 
     include_directories(${FREEIMAGE_INCLUDE_DIRS})
+    link_directories(${FREEIMAGE_LIBRARY_DIRS})
     #link_directories("/usr/local/lib")
 endif(APPLE)
 
@@ -122,12 +106,12 @@ if(APPLE)
     FIND_LIBRARY(COCOA_LIBRARY Cocoa)
 endif(APPLE)
 
-
 target_link_libraries(mashgraph ${FREEIMAGE_LIBRARY})
 target_link_libraries(mashgraph ${GLFW_LIBRARIES})
 if(APPLE)
     target_link_libraries(mashgraph ${COCOA_LIBRARY} "-framework Cocoa -framework IOKit -framework CoreVideo")
 endif(APPLE)
 target_link_libraries(mashgraph ${GLEW_LIBRARY}  ${OPENGL_LIBRARIES})
+target_link_libraries(mashgraph ${GLFW_STATIC_LIBRARIES})
 set_target_properties(mashgraph PROPERTIES LINK_FLAGS "-Wl,-F/Library/Frameworks")
 

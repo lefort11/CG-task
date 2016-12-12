@@ -33,8 +33,10 @@ void main()
             AO += step(sampleDepth, samplePos.z);
         } */
 
-        float rangeCheck = smoothstep(0.0, 1.0, gSampleRad / abs(Position.z - sampleDepth));
-        AO += (sampleDepth >= samplePos.z ? 1.0 : 0.0) * rangeCheck;
+        /*float rangeCheck = smoothstep(0.0, 1.0, gSampleRad / abs(Position.z - sampleDepth));
+        AO += (sampleDepth >= samplePos.z ? 1.0 : 0.0) * rangeCheck; */
+
+        AO += (sampleDepth >= samplePos.z + 0.025? 1.0 : 0.0);
 
     }
 
