@@ -36,7 +36,7 @@ class ShadowMapFBO: public FBO
 {
 public:
 
-	void Init(int width, int height)
+	virtual void Init(int width, int height)
 	{
 		FBO::Init(width, height, true, GL_NONE);
 	}
@@ -73,7 +73,7 @@ public:
 		m_pShadowMapFBO = new ShadowMapFBO(*(other.m_pShadowMapFBO));
 
 	} */
-	void Init(Shader const& shader)
+	virtual void Init(Shader const& shader)
 	{
 		m_TextureID = glGetUniformLocation(shader.Program(),"shadowMap");
 		m_LightBiasMVPID = glGetUniformLocation(shader.Program(), "lightBiasMVP");
@@ -115,7 +115,7 @@ public:
 		glUniform1i(m_TextureID, textureUnit);
 	}
 
-	void DoStuff(Shader const& shader, glm::mat4 const& model) const
+	virtual void DoStuff(Shader const& shader, glm::mat4 const& model) const
 	{
 		LoadLightBiasMVP(shader, model);
 		ReadShadowTexture(SHADOW_TEXTURE_UNIT, shader);
@@ -135,7 +135,7 @@ public:
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	}
 
-	LightingTechnique* Clone()
+	virtual LightingTechnique* Clone()
 	{
 		return new ShadowMapTechnique(*this);
 	}
@@ -145,16 +145,16 @@ public:
 
 class NormalMapTechnique: public LightingTechnique
 {
-	GLint m_NormalMapLocation;
-	GLint m_ColorMapLocation;
+	GLint m_NormalMapID;
+	GLint m_ColorMapID;
 
 	Texture* m_pNormalTex;
 	Texture* m_pColorTex;
 
 public:
 
-	NormalMapTechnique(Texture& normalTexture, Texture& colorTexture): m_NormalMapLocation(-1),
-																	   m_ColorMapLocation(-1),
+	NormalMapTechnique(Texture& normalTexture, Texture& colorTexture): m_NormalMapID(0),
+																	   m_ColorMapID(0),
 																	   m_pNormalTex(&normalTexture),
 																	   m_pColorTex(&colorTexture)
 	{
@@ -164,11 +164,11 @@ public:
 
 	virtual void Init(Shader const& shader)
 	{
-		m_NormalMapLocation = glGetUniformLocation(shader.Program(), "normalMap");
-		m_ColorMapLocation = glGetUniformLocation(shader.Program(), "colorMap");
+		m_NormalMapID = glGetUniformLocation(shader.Program(), "normalMap");
+		m_ColorMapID = glGetUniformLocation(shader.Program(), "colorMap");
 	}
 
-	virtual void LoadTextures(Texture& normalTexture, Texture& colorTexture)
+	void LoadTextures(Texture& normalTexture, Texture& colorTexture)
 	{
 		m_pNormalTex = &normalTexture;
 		m_pColorTex = &colorTexture;
@@ -180,9 +180,9 @@ public:
 	{
 		shader.UseProgram();
 		m_pNormalTex->Bind(NORMAL_TEXTURE_UNIT);
-		glUniform1i(m_NormalMapLocation, NORMAL_TEXTURE_UNIT - GL_TEXTURE0);
+		glUniform1i(m_NormalMapID, NORMAL_TEXTURE_UNIT - GL_TEXTURE0);
 		m_pColorTex->Bind(COLOR_TEXTURE_UNIT);
-		glUniform1i(m_ColorMapLocation, COLOR_TEXTURE_UNIT - GL_TEXTURE0);
+		glUniform1i(m_ColorMapID, COLOR_TEXTURE_UNIT - GL_TEXTURE0);
 	}
 
 	virtual void DoStuff(Shader const& shader, glm::mat4 const& model) const
@@ -194,6 +194,7 @@ public:
 	{
 		return new NormalMapTechnique(*this);
 	}
+
 };
 
 class ParallaxTechnique: public NormalMapTechnique
@@ -209,13 +210,13 @@ public:
 		m_pHeightTexture->Load();
 	}
 
-	void Init(Shader const& shader)
+	virtual void Init(Shader const& shader)
 	{
 		NormalMapTechnique::Init(shader);
 		m_HeightMapLocation = glGetUniformLocation(shader.Program(), "heightMap");
 	}
 
-	void BindTextures(Shader const& shader) const
+	virtual void BindTextures(Shader const& shader) const
 	{
 		NormalMapTechnique::BindTextures(shader);
 		m_pHeightTexture->Bind(HEIGHT_TEXTURE_UNIT);

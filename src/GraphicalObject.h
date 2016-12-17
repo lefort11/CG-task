@@ -36,7 +36,7 @@ bool LoadOBJ(const char * path, std::vector<Vertex>& vertices)
 
 	FILE * file = fopen(path, "r");
 	if( file == NULL ){
-		printf("Impossible to open the file ! Are you in the right path ? See Tutorial 1 for details\n");
+		printf("Impossible to open the file\n");
 		getchar();
 		return false;
 	}
@@ -119,7 +119,7 @@ bool LoadOBJ(const char * path, std::vector<Vertex>& vertices)
 	return true;
 }
 
-class Mesh
+class MeshBuffer
 {
 
 	GLuint m_VertexBuffer;
@@ -127,11 +127,11 @@ class Mesh
 
 	GLuint m_VertexArray; //VAO
 
-	unsigned  m_VertexNumber;
+	unsigned m_VertexNumber;
 	unsigned m_ElementNumber;
 
 public:
-	Mesh(Vertex const* vertices, unsigned const verticesNumber,
+	MeshBuffer(Vertex const* vertices, unsigned const verticesNumber,
 		 GLuint const* indices, unsigned const indicesNumber): m_ElementNumber(indicesNumber),
 															   m_VertexNumber(verticesNumber)
 	{
@@ -154,7 +154,7 @@ public:
 
 	}
 
-	Mesh(std::vector<Vertex> const& vertices): m_ElementNumber((unsigned int)vertices.size()),
+	MeshBuffer(std::vector<Vertex> const& vertices): m_ElementNumber((unsigned int)vertices.size()),
 											   m_VertexNumber((unsigned int)vertices.size())
 	{
 		//Setting up VAO
@@ -180,7 +180,7 @@ public:
 	}
 
 
-	~Mesh()
+	~MeshBuffer()
 	{
 		glDeleteBuffers(1, &m_VertexBuffer);
 		glDeleteBuffers(1, &m_ElementBuffer);
@@ -279,7 +279,7 @@ public:
 		}
 	}
 
-	void DoStuff(Shader const& shader, glm::mat4 const& model)
+	void DoStuff(Shader const& shader, glm::mat4 const& model) const
 	{
 		for(int i = 0; i < m_LightningTechniques.size(); ++i)
 		{
@@ -295,7 +295,7 @@ public:
 
 class GraphicalObject
 {
-	Mesh m_Mesh;
+	MeshBuffer m_MeshBuffer;
 	glm::vec3 m_CenterOffset;
 	glm::vec3 m_Rotatation;
 	glm::vec3 m_Scale;
@@ -310,13 +310,13 @@ public:
 	GraphicalObject(Vertex const* vertices, unsigned const verticesNumber, GLuint const* indices,
 					unsigned const indicesNumber, glm::vec3 const& offset = {}, glm::vec3 const& rotate = glm::vec3(0.0f),
 					glm::vec3 scale = glm::vec3(1.0f)):
-			m_Mesh(vertices,  verticesNumber, indices, indicesNumber),
+			m_MeshBuffer(vertices,  verticesNumber, indices, indicesNumber),
 			m_CenterOffset(offset), m_Rotatation(rotate), m_Scale(scale)
 	{}
 
 	GraphicalObject(std::vector<Vertex> vertices, glm::vec3 const& offset = {}, glm::vec3 const& rotate = glm::vec3(0.0f),
 					glm::vec3 scale = glm::vec3(1.0f)):
-			m_Mesh(vertices), m_CenterOffset(offset), m_Rotatation(rotate), m_Scale(scale)
+			m_MeshBuffer(vertices), m_CenterOffset(offset), m_Rotatation(rotate), m_Scale(scale)
 	{}
 
 
@@ -364,13 +364,13 @@ public:
 
 		glUniformMatrix4fv(m_pShader->ViewID(), 1, GL_FALSE, &view[0][0]);
 
-		m_Mesh.Draw();
+		m_MeshBuffer.Draw();
 
 		glUseProgram(0);
 
 	}
 
-	void DrawIlluminated(Camera const& camera, glm::vec4 const& lightDirection)
+	void DrawIlluminated(Camera const& camera, glm::vec4 const& lightDirection) const
 	{
 		m_pShader->UseProgram();
 
@@ -404,7 +404,7 @@ public:
 
 		m_pMaterial->DoStuff(*m_pShader, model);
 
-		m_Mesh.Draw();
+		m_MeshBuffer.Draw();
 
 		glUseProgram(0);
 	}

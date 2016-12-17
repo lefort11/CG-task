@@ -39,7 +39,7 @@ public:
 
 	}
 
-	void Init(int width, int height, bool withDepth, GLenum internalType)
+	virtual void Init(int width, int height, bool withDepth, GLenum internalType)
 	{
 		m_InternalType = internalType;
 

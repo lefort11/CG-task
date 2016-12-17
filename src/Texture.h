@@ -19,7 +19,7 @@ class Texture
 {
 	std::string m_Filename;
 	GLenum m_TextureTarget;
-	GLuint m_TextureObj;
+	GLuint m_TextureID;
 	FIBITMAP* m_pImage;
 
 public:
@@ -32,8 +32,8 @@ public:
 
 	void Load()
 	{
-		glGenTextures(1, &m_TextureObj);
-		glBindTexture(m_TextureTarget, m_TextureObj);
+		glGenTextures(1, &m_TextureID);
+		glBindTexture(m_TextureTarget, m_TextureID);
 
 		FIBITMAP* bitmap = FreeImage_Load(FreeImage_GetFileType(m_Filename.c_str()), m_Filename.c_str());
 		unsigned width = FreeImage_GetWidth(bitmap);
@@ -62,13 +62,14 @@ public:
 	void Bind(GLenum TextureUnit) const
 	{
 		glActiveTexture(TextureUnit);
-		glBindTexture(m_TextureTarget, m_TextureObj);
+		glBindTexture(m_TextureTarget, m_TextureID);
 	}
 
 
 	~Texture()
 	{
 		FreeImage_Unload(m_pImage);
+		glDeleteTextures(1, &m_TextureID);
 	}
 
 };

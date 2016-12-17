@@ -1,10 +1,25 @@
 #ifndef CUBEMAP_H
 #define CUBEMAP_H
 
+
+#include <GL/glew.h>
+
+#include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/euler_angles.hpp>
+
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <vector>
+
+#include <freeimage.h>
+
 class CubemapTexture
 {
 	std::string  m_Filenames[6];
-	GLuint m_TextureObj;
+	GLuint m_TextureID;
 
 
 public:
@@ -26,8 +41,8 @@ public:
 
 	bool Load()
 	{
-		glGenTextures(1, &m_TextureObj);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, m_TextureObj);
+		glGenTextures(1, &m_TextureID);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, m_TextureID);
 
 
 		FIBITMAP* bitmap = nullptr;
@@ -73,12 +88,12 @@ public:
 	void Bind(GLenum textureUnit)
 	{
 		glActiveTexture(textureUnit);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, m_TextureObj);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, m_TextureID);
 	}
 
 	~CubemapTexture()
 	{
-		glDeleteTextures(1, &m_TextureObj);
+		glDeleteTextures(1, &m_TextureID);
 	}
 
 };
@@ -105,7 +120,7 @@ public:
 		m_CubemapTex.Load();
 	}
 
-	void Draw(OrbitalCamera const& camera)
+	void Draw(Camera const& camera)
 	{
 		m_CubemapTex.Bind(SKYBOX_TEXTURE_UNIT);
 

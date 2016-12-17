@@ -7,7 +7,7 @@
 
 class Window
 {
-	GLFWwindow* m_window;
+	GLFWwindow* m_Window;
 
 public:
 
@@ -26,9 +26,9 @@ public:
 		glfwWindowHint ( GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE );
 		glfwWindowHint ( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
 
-		m_window = glfwCreateWindow(width, height, title, nullptr, nullptr);
+		m_Window = glfwCreateWindow(width, height, title, nullptr, nullptr);
 
-		glfwMakeContextCurrent(m_window);
+		glfwMakeContextCurrent(m_Window);
 
 		glViewport ( 0, 0, (GLsizei)width, (GLsizei)height );
 
@@ -36,14 +36,14 @@ public:
 
 	}
 
-	GLFWwindow const* GetGLFWPtr() const
+	GLFWwindow* const GetGLFWPtr() const
 	{
-		return m_window;
+		return m_Window;
 	}
 
 	GLFWwindow* GetGLFWPtr()
 	{
-		return m_window;
+		return m_Window;
 	}
 
 	void Initialize()
@@ -52,13 +52,13 @@ public:
 
 		glewInit();
 
-		glfwSetInputMode(m_window, GLFW_STICKY_KEYS, GL_TRUE);
+		glfwSetInputMode(m_Window, GLFW_STICKY_KEYS, GL_TRUE);
 
 	}
 
 	void Destroy()
 	{
-		glfwDestroyWindow(m_window);
+		glfwDestroyWindow(m_Window);
 
 	}
 };

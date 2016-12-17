@@ -176,7 +176,6 @@ vec2 ParallaxMapping(in vec3 eyeDirection, in vec2 texCoords, out float parallax
        vec2 currentTextureCoords = texCoords;
 
        // depth from heightmap
-//       float heightFromTexture;
        float heightFromTexture = texture(heightMap, currentTextureCoords).r;
 
        // while point is above surface

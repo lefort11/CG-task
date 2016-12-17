@@ -59,55 +59,6 @@ GLuint const Skybox::skyboxIndices[] =
 glm::vec3 const Skybox::offset = glm::vec3(0.0f, 0.0f, 0.0f);
 
 
-
-Vertex cube_vertices[] =
-		{
-				{glm::vec3(-0.5f, -0.5f, -0.5f), {-1.0f, -1.0f, -1.0f}, {1.0f,0.0f,0.0f},{}},
-				{glm::vec3(-0.5f, 0.5f, -0.5f), {-1.0f, 1.0f, -1.0f}, {1.0f,0.0f,0.0f},{}},
-				{glm::vec3(0.5f, 0.5f, -0.5f), {1.0f, 1.0f, -1.0f}, {1.0f,0.0f,0.0f},{}},
-				{glm::vec3(0.5f, -0.5f, -0.5f), {1.0f, -1.0f, -1.0f}, {1.0f,0.0f,0.0f},{}},
-				{glm::vec3(-0.5f, -0.5f, 0.5f), {-1.0f, -1.0f, 1.0f}, {1.0f,0.0f,0.0f},{}},
-				{glm::vec3(-0.5f, 0.5f, 0.5f), {-1.0f, 1.0f, 1.0f}, {1.0f,0.0f,0.0f},{}},
-				{glm::vec3(0.5f, 0.5f, 0.5f), {1.0f, 1.0f, 1.0f}, {1.0f,0.0,0.0f},{}},
-				{glm::vec3(0.5f, -0.5f, 0.5f), {1.0f, -1.0f, 1.0f}, {1.0f,0.0f,0.0f},{}}
-		};
-
-Vertex cube_vertices2[] =
-		{
-				{3.0f * glm::vec3(-0.5f, -0.5f, -0.5f), {-1.0f, -1.0f, -1.0f}, {1.0f,0.0f,0.0f},{}},
-				{3.0f * glm::vec3(-0.5f, 0.5f, -0.5f), {-1.0f, 1.0f, -1.0f}, {1.0f,0.0f,0.0f},{}},
-				{3.0f * glm::vec3(0.5f, 0.5f, -0.5f), {1.0f, 1.0f, -1.0f}, {1.0f,0.0f,0.0f},{}},
-				{3.0f * glm::vec3(0.5f, -0.5f, -0.5f), {1.0f, -1.0f, -1.0f}, {1.0f,0.0f,0.0f},{}},
-				{3.0f * glm::vec3(-0.5f, -0.5f, 0.5f), {-1.0f, -1.0f, 1.0f}, {1.0f,0.0f,0.0f},{}},
-				{3.0f * glm::vec3(-0.5f, 0.5f, 0.5f), {-1.0f, 1.0f, 1.0f}, {1.0f,0.0f,0.0f},{}},
-				{3.0f * glm::vec3(0.5f, 0.5f, 0.5f), {1.0f, 1.0f, 1.0f}, {1.0f,0.0,0.0f},{}},
-				{3.0f * glm::vec3(0.5f, -0.5f, 0.5f), {1.0f, -1.0f, 1.0f}, {1.0f,0.0f,0.0f},{}}
-		};
-
-GLuint cube_indices[] =
-		{
-				// back
-				0, 1, 2,
-				2, 3, 0,
-				// right
-				3, 2, 6,
-				6, 7, 3,
-				// left
-				4, 5, 1,
-				1, 0, 4,
-				// top
-				1, 5, 6,
-				6, 2, 1,
-				// bottom
-				4, 0, 3,
-				3, 7, 4,
-				// back
-				7, 6, 5,
-				5, 4, 7
-
-		};
-
-
 Vertex planeVertices[] =
 		{
 				{glm::vec3(10.0f, -0.5f, 10.0f), {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1,1}},
@@ -146,8 +97,9 @@ int main(int argc, char* argv[])
 	std::vector<Vertex> cubeVertices;
 	std::vector<Vertex> jeepVertices;
 
-	LoadOBJ("cube.obj", cubeVertices);
-	bool res = LoadOBJ("jeep.obj", jeepVertices);
+	//LoadOBJ("../src/cube.obj", cubeVertices);
+	LoadOBJ("/Users/Gleb/Desktop/mashgraph/src/cube.obj", cubeVertices);
+	LoadOBJ("../src/jeep.obj", jeepVertices);
 
 	OrbitalCamera camera(WIDTH, HEIGHT);
 
@@ -339,8 +291,12 @@ int main(int argc, char* argv[])
 
 		skybox.Draw(camera);
 
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		cube2.LoadShader(cubemapReflectionShader);
 		cube2.Draw(camera);
+		glDisable(GL_BLEND);
 
 
 // 		cube.Rotate(glm::vec3(glfwGetTime(), glfwGetTime(), glfwGetTime()));
