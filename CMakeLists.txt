@@ -115,3 +115,4 @@ target_link_libraries(mashgraph ${GLEW_LIBRARY}  ${OPENGL_LIBRARIES})
 target_link_libraries(mashgraph ${GLFW_STATIC_LIBRARIES})
 set_target_properties(mashgraph PROPERTIES LINK_FLAGS "-Wl,-F/Library/Frameworks")
 
+

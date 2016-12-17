@@ -97,8 +97,8 @@ int main(int argc, char* argv[])
 	std::vector<Vertex> cubeVertices;
 	std::vector<Vertex> jeepVertices;
 
-	//LoadOBJ("../src/cube.obj", cubeVertices);
-	LoadOBJ("/Users/Gleb/Desktop/mashgraph/src/cube.obj", cubeVertices);
+	LoadOBJ("../src/cube.obj", cubeVertices);
+	//LoadOBJ("/Users/Gleb/Desktop/mashgraph/src/cube.obj", cubeVertices);
 	LoadOBJ("../src/jeep.obj", jeepVertices);
 
 	OrbitalCamera camera(WIDTH, HEIGHT);
@@ -292,11 +292,8 @@ int main(int argc, char* argv[])
 		skybox.Draw(camera);
 
 
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		cube2.LoadShader(cubemapReflectionShader);
 		cube2.Draw(camera);
-		glDisable(GL_BLEND);
 
 
 // 		cube.Rotate(glm::vec3(glfwGetTime(), glfwGetTime(), glfwGetTime()));
