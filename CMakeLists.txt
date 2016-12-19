@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.6)
-project(mashgraph)
+project(cg)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
@@ -100,19 +100,21 @@ endif(APPLE)
 
 #set (CMAKE_SHARED_LINKER_FLAGS "-lglut -lX11 -lGL -lGlEW")
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+
 set(SOURCE_FILES src/main.cpp src/Window.h src/Engine.h src/Camera.h src/Shader.h src/TangentSpace.h src/Vertex.h src/LightingTechnique.h src/GraphicalObject.h src/Texture.h src/Cubemap.h src/FBO.h src/SSAO.h)
-add_executable(mashgraph ${SOURCE_FILES})
+add_executable(cg ${SOURCE_FILES})
 if(APPLE)
     FIND_LIBRARY(COCOA_LIBRARY Cocoa)
 endif(APPLE)
 
-target_link_libraries(mashgraph ${FREEIMAGE_LIBRARY})
-target_link_libraries(mashgraph ${GLFW_LIBRARIES})
+target_link_libraries(cg ${FREEIMAGE_LIBRARY})
+target_link_libraries(cg ${GLFW_LIBRARIES})
 if(APPLE)
-    target_link_libraries(mashgraph ${COCOA_LIBRARY} "-framework Cocoa -framework IOKit -framework CoreVideo")
+    target_link_libraries(cg ${COCOA_LIBRARY} "-framework Cocoa -framework IOKit -framework CoreVideo")
 endif(APPLE)
-target_link_libraries(mashgraph ${GLEW_LIBRARY}  ${OPENGL_LIBRARIES})
-target_link_libraries(mashgraph ${GLFW_STATIC_LIBRARIES})
-set_target_properties(mashgraph PROPERTIES LINK_FLAGS "-Wl,-F/Library/Frameworks")
+target_link_libraries(cg ${GLEW_LIBRARY}  ${OPENGL_LIBRARIES})
+target_link_libraries(cg ${GLFW_STATIC_LIBRARIES})
+set_target_properties(cg PROPERTIES LINK_FLAGS "-Wl,-F/Library/Frameworks")
 
 

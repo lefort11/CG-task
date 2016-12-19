@@ -1,0 +1,3 @@
+/Users/Gleb/Desktop/mashgraph/cmake-build-release/CMakeFiles/edit_cache.dir
+/Users/Gleb/Desktop/mashgraph/cmake-build-release/CMakeFiles/rebuild_cache.dir
+/Users/Gleb/Desktop/mashgraph/cmake-build-release/CMakeFiles/cg.dir

@@ -1,0 +1,8 @@
+/Applications/CLion.app/Contents/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Release -G "CodeBlocks - Unix Makefiles" /Users/Gleb/Desktop/mashgraph
+*** Glew inlclude is found!
+*** Glew lib is found!
+*** FreeImage inlclude is found!
+*** FreeImage lib is found!
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /Users/Gleb/Desktop/mashgraph/cmake-build-release

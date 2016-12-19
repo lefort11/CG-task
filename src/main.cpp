@@ -97,9 +97,9 @@ int main(int argc, char* argv[])
 	std::vector<Vertex> cubeVertices;
 	std::vector<Vertex> jeepVertices;
 
-	LoadOBJ("../src/cube.obj", cubeVertices);
+	LoadOBJ("./res/cube.obj", cubeVertices);
 	//LoadOBJ("/Users/Gleb/Desktop/mashgraph/src/cube.obj", cubeVertices);
-	LoadOBJ("../src/jeep.obj", jeepVertices);
+	LoadOBJ("./res/jeep.obj", jeepVertices);
 
 	OrbitalCamera camera(WIDTH, HEIGHT);
 
@@ -112,9 +112,10 @@ int main(int argc, char* argv[])
 	glCullFace(GL_BACK);
 
 
-	Skybox skybox("../Yokohama2/posx.jpg", "../Yokohama2/negx.jpg", "../Yokohama2/posy.jpg", "../Yokohama2/negy.jpg",
-				  "../Yokohama2/posz.jpg",
-				  "../Yokohama2/negz.jpg");
+	Skybox skybox("./res/Yokohama2/posx.jpg", "./res/Yokohama2/negx.jpg",
+				  "./res/Yokohama2/posy.jpg", "./res/Yokohama2/negy.jpg",
+				  "./res//Yokohama2/posz.jpg",
+				  "./res/Yokohama2/negz.jpg");
 
 /*	GraphicalObject cube(cube_vertices, sizeof(cube_vertices)/sizeof(cube_vertices[0]),
 			  cube_indices, sizeof(cube_indices)/sizeof(cube_indices[0]), glm::vec3(0.0f), glm::vec3(0.0f));
@@ -135,26 +136,26 @@ int main(int argc, char* argv[])
 
 	Shader skyboxShader, shadowShader, cubemapReflectionShader, normalMapShader, parallaxMapShader;
 	//shader compilation
-	skyboxShader.Load("../src/Shaders/SkyboxShaders/SkyboxVertex.glsl", "../src/Shaders/SkyboxShaders/SkyboxFragment.glsl");
-	cubemapReflectionShader.Load("../src/Shaders/SkyboxShaders/CubemapReflectionVertex.glsl",
-								 "../src/Shaders/SkyboxShaders/CubemapReflectionFragment.glsl");
-	shadowShader.Load("../src/Shaders/ShadowShaders/ShadowLightVertex.glsl",
-					  "../src/Shaders/ShadowShaders/ShadowLightFragment.glsl");
+	skyboxShader.Load("./Shaders/SkyboxShaders/SkyboxVertex.glsl", "./Shaders/SkyboxShaders/SkyboxFragment.glsl");
+	cubemapReflectionShader.Load("./Shaders/SkyboxShaders/CubemapReflectionVertex.glsl",
+								 "./Shaders/SkyboxShaders/CubemapReflectionFragment.glsl");
+	shadowShader.Load("./Shaders/ShadowShaders/ShadowLightVertex.glsl",
+					  "./Shaders/ShadowShaders/ShadowLightFragment.glsl");
 
 
 
-	normalMapShader.Load("../src/Shaders/NormalMapShaders/NormalVertex.glsl",
-						 "../src/Shaders/NormalMapShaders/NormalFragment.glsl");
+	normalMapShader.Load("./Shaders/NormalMapShaders/NormalVertex.glsl",
+						 "./Shaders/NormalMapShaders/NormalFragment.glsl");
 
-	parallaxMapShader.Load("../src/Shaders/Parallax/ParallaxVertex.glsl",
-						   "../src/Shaders/Parallax/ParallaxFragment.glsl");
+	parallaxMapShader.Load("./Shaders/Parallax/ParallaxVertex.glsl",
+						   "./Shaders/Parallax/ParallaxFragment.glsl");
 	Shader geomPassShader, aoPassShader, blurPassShader;
-	geomPassShader.Load("../src/Shaders/SSAO/GeometryPass/GPassVertex.glsl",
-						"../src/Shaders/SSAO/GeometryPass/GPassFragment.glsl");
-	aoPassShader.Load("../src/Shaders/SSAO/SSAOPass/SSAOPassVertex.glsl",
-					  "../src/Shaders/SSAO/SSAOPass/SSAOPassFragment.glsl");
-	blurPassShader.Load("../src/Shaders/SSAO/BlurPass/BlurVertex.glsl",
-						"../src/Shaders/SSAO/BlurPass/BlurFragment.glsl");
+	geomPassShader.Load("./Shaders/SSAO/GeometryPass/GPassVertex.glsl",
+						"./Shaders/SSAO/GeometryPass/GPassFragment.glsl");
+	aoPassShader.Load("./Shaders/SSAO/SSAOPass/SSAOPassVertex.glsl",
+					  "./Shaders/SSAO/SSAOPass/SSAOPassFragment.glsl");
+	blurPassShader.Load("./Shaders/SSAO/BlurPass/BlurVertex.glsl",
+						"./Shaders/SSAO/BlurPass/BlurFragment.glsl");
 
 	// !!!! ATTENTION !!!!!
 	bool SoftShadows = true;
@@ -171,16 +172,16 @@ int main(int argc, char* argv[])
 	glfwGetFramebufferSize(window.GetGLFWPtr(), &width, &height);
 	shadowMapFBO.Init(width, height);
 	Shader shadowGenShader;
-	shadowGenShader.Load("../src/Shaders/ShadowShaders/ShadowGenVertex.glsl",
-						 "../src/Shaders/ShadowShaders/ShadowGenFragment.glsl");
+	shadowGenShader.Load("./Shaders/ShadowShaders/ShadowGenVertex.glsl",
+						 "./Shaders/ShadowShaders/ShadowGenFragment.glsl");
 
-	Texture normalTex(GL_TEXTURE_2D, "../normal map/normal_map.jpg");
+	Texture normalTex(GL_TEXTURE_2D, "./res/normal map/normal_map.jpg");
 
-	Texture colorTex(GL_TEXTURE_2D, "../normal map/bricks.jpg");
+	Texture colorTex(GL_TEXTURE_2D, "./res/normal map/bricks.jpg");
 
-	Texture normalTex2(GL_TEXTURE_2D, "../bricks/bricks2_normal.jpg");
-	Texture colorTex2(GL_TEXTURE_2D, "../bricks/bricks2.jpg");
-	Texture heightTex(GL_TEXTURE_2D, "../bricks/bricks2_disp.jpg");
+	Texture normalTex2(GL_TEXTURE_2D, "./res/bricks/bricks2_normal.jpg");
+	Texture colorTex2(GL_TEXTURE_2D, "./res/bricks/bricks2.jpg");
+	Texture heightTex(GL_TEXTURE_2D, "./res/bricks/bricks2_disp.jpg");
 
 
 	//initializing Lightning technique
